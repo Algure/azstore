@@ -4,10 +4,7 @@ Access azure storage options via REST APIs.
 
 ## Getting Started
 
-This package handles all the encryption and formatting required to provide easy access to azure storage options via REST APIs.
-The package currently provides functions to query and upload data to Azure blobs, tables and queues. Add the latest dependency to your
-pubspec.yaml to get started.        ```azstore: ^latest_version ```          and import. In the following examples,         `'your connection string'`
- can be gotten from the azure portal.
+This package handles all the encryption and formatting required to provide easy access to azure storage options via REST APIs in flutter project. The package currently provides functions to query and upload data to Azure blobs, tables and queues. Add the latest dependency to your pubspec.yaml to get started. azstore: ^latest_version and import. In the following examples, 'your connection string' can be gotten from the azure portal after simply creating a storage account ( or follow the walkthrough in the section [Creating Azure Storage Account](#creating-azure-storage-account) ).
 
 ## Azure Blob Functions.
 
@@ -258,3 +255,33 @@ Future<void> testDeleteMessage() async {
 
 The package provides internal documentation and required function parameters to ease working with functions. Also refer to the [Azure official documentation](https://docs.microsoft.com/en-us/rest/api/storageservices/queue-service-rest-api) for details on queue operations and messages lifecycle.
 
+## Creating Azure Storage Account
+
+You would need an azure storage account to complete this walk through.
+
+### STEP 1.
+Navigate to your azure portal and create a resource by clicking the create a resourse button then select storage accounts or simply click the storage accounts button if it appears on your home page.
+
+createRes
+
+selectstore
+
+### STEP 2.
+Enter details for your new storage account and then Review + create . Also feel free to explore options in the other tabs (Networking, Data Protection, Advanced and Tags) for more control over your storage account. (Review process may take a few seconds).
+
+storewalkthrough
+
+### STEP 3:
+Complete account creation by clicking the Create button after review is complete.
+
+create
+
+### STEP 4:
+Go to resource after deployment is complete.
+
+deploymentcompleted.
+
+### STEP 5:
+In the resource page, navigate to the Access keys tab and show keys. The show keys button exposes your access keys and connection string which is all you need to use this flutter package.
+
+copy_keys
