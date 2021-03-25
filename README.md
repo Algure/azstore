@@ -262,26 +262,34 @@ You would need an azure storage account to complete this walk through.
 ### STEP 1.
 Navigate to your azure portal and create a resource by clicking the create a resourse button then select storage accounts or simply click the storage accounts button if it appears on your home page.
 
-createRes
+![createRes](https://user-images.githubusercontent.com/37802577/112519190-6aba3400-8d9a-11eb-9c9e-0efe6c93b09a.png)
 
-selectstore
+![selectstore](https://user-images.githubusercontent.com/37802577/112519216-6f7ee800-8d9a-11eb-926d-bcd68d58a9e4.png)
+
 
 ### STEP 2.
 Enter details for your new storage account and then Review + create . Also feel free to explore options in the other tabs (Networking, Data Protection, Advanced and Tags) for more control over your storage account. (Review process may take a few seconds).
 
-storewalkthrough
+![storewalkthrough](https://user-images.githubusercontent.com/37802577/112519140-5f670880-8d9a-11eb-942f-bbcdde186163.png)
 
 ### STEP 3:
 Complete account creation by clicking the Create button after review is complete.
 
-create
+![create](https://user-images.githubusercontent.com/37802577/112519176-6726ad00-8d9a-11eb-8514-722d8e321585.png)
+
 
 ### STEP 4:
 Go to resource after deployment is complete.
 
-deploymentcompleted.
+![deploymentcompleted](https://user-images.githubusercontent.com/37802577/112519206-6e4dbb00-8d9a-11eb-8b5e-5660ed6099e5.png)
+
 
 ### STEP 5:
 In the resource page, navigate to the Access keys tab and show keys. The show keys button exposes your access keys and connection string which is all you need to use this flutter package.
 
-copy_keys
+![copy_keys](https://user-images.githubusercontent.com/37802577/112519155-63932600-8d9a-11eb-98ee-f11672006e48.png)
+
+
+
+**ENJOY !!!**
+
