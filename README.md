@@ -31,8 +31,7 @@ Text can also be uploaded to blob in which case         `body`         parameter
 
 Delete blob operations can also be performed as shown.
 
-```
-Future<void> testDeleteBlob() async {
+```Future<void> testDeleteBlob() async {
   var storage = AzureStorage.parse('your connection string');
   try {
     await storage.deleteBlob('/azpics/fdblack.png');
