@@ -12,8 +12,7 @@ Upload file to blob with         `putBlob`         function.         `body`     
 
 Example:
 
-```
-Future<void> testUploadImage() async {
+```Future<void> testUploadImage() async {
   File testFile =File('C:/Users/HP/Pictures/fdblack.png');
   Uint8List bytes = testFile.readAsBytesSync();
   var storage = AzureStorage.parse('your connection string');
