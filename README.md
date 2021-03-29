@@ -24,7 +24,8 @@ Example:
   }catch(e){
     print('exception: $e');
   }
-}```
+}
+```
 
 Text can also be uploaded to blob in which case         `body`         parameter is specified instead of         `bodyBytes`         .
 
