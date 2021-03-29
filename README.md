@@ -24,8 +24,7 @@ Example:
   }catch(e){
     print('exception: $e');
   }
-}
-```
+}```
 
 Text can also be uploaded to blob in which case         `body`         parameter is specified instead of         `bodyBytes`         .
 
@@ -82,9 +81,7 @@ Future<void> testUpload2Table() async {
   }catch(e){
     print('tables upsert exception: $e');
   }
-}
-
-```
+}```
 
 Specific Table rows can be retrieved using `getTableRow` function as shown below. Filters can also be used to retrieve a list of table rows by using the `filterTableRows` function specifying the [filter logic](https://docs.microsoft.com/en-us/rest/api/storageservices/querying-tables-and-entities) in the `filter` parameter.
 
