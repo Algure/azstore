@@ -1,21 +1,40 @@
 # azstore
 
+[![license](https://img.shields.io/badge/license-MIT-success.svg?style=flat-square)](https://github.com/Algure/azstore/blob/master/LICENSE)
+[![pub package](https://img.shields.io/pub/v/azstore.svg?color=success&style=flat-square)](https://pub.dartlang.org/packages/azstore)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-success.svg?style=flat-square)](https://github.com/Algure/azstore/pulls)
+
 Access azure storage options via REST APIs.
 
 ## Getting Started
 
-This package handles all the encryption and formatting required to provide easy access to azure storage options via REST APIs.
-The package currently provides functions to query and upload data to Azure blobs, tables and queues. Add the latest dependency to your
-pubspec.yaml to get started.        ```azstore: ^latest_version ```          and import. In the following examples,         `'your connection string'`
- can be gotten from the azure portal.
+This package handles all the encryption and formatting required to provide easy access to azure storage options via REST APIs in flutter project.
+The package currently provides functions to query and upload data to Azure blobs, tables and queues.
 
-## Azure Blob Functions.
+## 🎖 Installing
 
+```yaml
+dependencies:
+  azstore: ^latest_version
+```
+
+### ⚡️ Import
+
+```dart
+import 'package:azstore/azstore.dart';
+```
+
+## 🎮 How To Use
+> Get your connection string from the azure portal after simply creating a storage account (you can follow the walkthrough in the section [Creating Azure Storage Account](#creating-azure-storage-account))
+
+### Azure Blob Functions.
+
+#### Upload
 Upload file to blob with         `putBlob`         function.         `body`          and         `bodyBytes`         are exclusive and mandatory.
 
 Example:
 
-```
+```dart
 Future<void> testUploadImage() async {
   File testFile =File('C:/Users/HP/Pictures/fdblack.png');
   Uint8List bytes = testFile.readAsBytesSync();
@@ -33,14 +52,15 @@ Future<void> testUploadImage() async {
 
 Text can also be uploaded to blob in which case         `body`         parameter is specified instead of         `bodyBytes`         .
 
+#### Delete
 Delete blob operations can also be performed as shown.
 
-```
+```dart
 Future<void> testDeleteBlob() async {
   var storage = AzureStorage.parse('your connection string');
   try {
     await storage.deleteBlob('/azpics/fdblack.png');
-    print('done deleting');//Do something else
+    print('done deleting');
   }catch(e){
     print('exception: $e');
   }
@@ -49,7 +69,7 @@ Future<void> testDeleteBlob() async {
 
 Also explore the         `appendBlock`          function.
 
-## Table Storage Functions
+### Table Storage Functions
 
 The Azure Table service offers structured NoSQL storage in the form of tables.
 Tables can be managed using the         `createTable`,`deleteTable`         and         `getTables`          functions.
@@ -58,14 +78,15 @@ Table nodes/rows can be controlled using other functions  such as         `upser
 The following snippets show the use of some table access functions. Also refer to the [Azure Tables docs](https://docs.microsoft.com/en-us/rest/api/storageservices/payload-format-for-table-service-operations/) for allowed data types to insert in a table row.
 The code documentation provides further help.
 
+
 Use `upsertTableRow` when updating or adding new table row and `putTableRow` to replace or add a new row.
 
-```
+```dart
 Future<void> testUpload2Table() async {
   var storage = AzureStorage.parse('your connection string');
   try {
     var myPartitionKey='partition_key';
-    var myRowKey='237';//Must be unique
+    var myRowKey='237';
     Map<String, dynamic> rowMap={"Address":"Santa Clara",
     "Age":23,
     "AmountDue":200.23,
@@ -80,9 +101,9 @@ Future<void> testUpload2Table() async {
      "RowKey":"$myRowKey"
     };
     await storage.upsertTableRow(
-        tableName: 'profiles',//Required.
-        rowKey:myRowKey,//Required.
-        bodyMap: rowMap//Required.
+        tableName: 'profiles',
+        rowKey:myRowKey,
+        bodyMap: rowMap
      );
   }catch(e){
     print('tables upsert exception: $e');
@@ -93,17 +114,17 @@ Future<void> testUpload2Table() async {
 
 Specific Table rows can be retrieved using `getTableRow` function as shown below. Filters can also be used to retrieve a list of table rows by using the `filterTableRows` function specifying the [filter logic](https://docs.microsoft.com/en-us/rest/api/storageservices/querying-tables-and-entities) in the `filter` parameter.
 
-```
+```dart
 Future<void> testGetTableRow() async {
   var storage = AzureStorage.parse('your connection string');
   try {
     var myPartitionKey='partition_key';
     var myRowKey='unique_row_id';
     String result=await storage.getTableRow(
-        tableName: 'profiles',//Required.
-        partitionKey:myPartitionKey,// Required. partitionKey parameter specified in upsert operation.
-        rowKey:myRowKey,// Required. rowKey parameter specified in upsert operation.
-        fields: ['Address','CustomerSince']//Optional. Retrieves all fields when not specified.
+        tableName: 'profiles',
+        partitionKey:myPartitionKey,
+        rowKey:myRowKey,
+        fields: ['Address','CustomerSince']
     );
     print('result: $result');
   }catch(e){
@@ -113,10 +134,10 @@ Future<void> testGetTableRow() async {
 
 Future<void> testFilterTable() async {
   var storage = AzureStorage.parse('your connection string');
-  List<String> result=await storage.filterTableRows(tableName: 'profiles',//Required
-   filter: 'Age%20lt%2024', //Required.
-   fields: ['Age','CustomerSince'], //Optional. Retrieves all fields when not specified.
-   top:30 //Optional. Number of entities to retrieve. This package returns top 20 filter results when not specified.
+  List<String> result=await storage.filterTableRows(tableName: 'profiles',
+   filter: 'Age%20lt%2024', 
+   fields: ['Age','CustomerSince'], 
+   top:30 
    );
   print('\nFilter results');
   for(String res in result){
@@ -126,11 +147,11 @@ Future<void> testFilterTable() async {
 ```
 
 Table rows can also be deleted.
-```
+
+```dart
 Future<void> testDeleteTableRow() async {
   try {
     var storage = AzureStorage.parse('your connection string');
-    //All parameters are required
     await storage.deleteTableRow(tableName: 'profiles', partitionKey: 'fgtdssdas', rowKey: '232');
   }catch(e){
     print('delete exception: $e');
@@ -138,11 +159,11 @@ Future<void> testDeleteTableRow() async {
 }
 ```
 
-## Azure Queue Functions
+### Azure Queue Functions
 
 Azure Queue Storage allows you store large numbers of messages. Queues in your storage account can easily be managed using `createQueue`, `deleteQueue`, `getQList` and `getQData` functions.
 
-```
+```dart
 Future<void> testCreateQ() async {
   try{
       var storage = AzureStorage.parse('your connection string');
@@ -193,8 +214,7 @@ Future<void> testDeleteQ() async {
 
 To insert and access messages in a queue, the functions `putQMessage`, `getQmessages`,`peekQmessages`,`clearQmessages` and `delQmessages` can be used as shown below.
 
-```
-
+```dart
 Future<void> testPutMessage() async {
   var storage = AzureStorage.parse('your connection string');
   try {
@@ -208,8 +228,8 @@ Future<void> testGetQMessages() async {
   var storage = AzureStorage.parse('your connection string');
   print('working on results...');
   try {
-    List<AzureQMessage> result = await storage.getQmessages(qName: 'ttable',//Required
-      numOfmessages: 10//Optional. Number of messages to retrieve. This package returns top 20 filter results when not specified.
+    List<AzureQMessage> result = await storage.getQmessages(qName: 'ttable',
+      numOfmessages: 10
     );
     print('showing get results');
     for (var res in result) {
@@ -245,7 +265,6 @@ Future<void> testClearQMessage() async {
 Future<void> testDeleteMessage() async {
   var storage = AzureStorage.parse('your connection string');
   try {
-  //All fields are required.
     await storage.delQmessages(qName: 'ttable',
      messageId: '27bc633b-4de0-42bf-bea6-0860bd410f4e',
       popReceipt: 'AgAAAAMAAAAAAAAAX3e0UwAg1wE='
@@ -258,3 +277,72 @@ Future<void> testDeleteMessage() async {
 
 The package provides internal documentation and required function parameters to ease working with functions. Also refer to the [Azure official documentation](https://docs.microsoft.com/en-us/rest/api/storageservices/queue-service-rest-api) for details on queue operations and messages lifecycle.
 
+## Creating Azure Storage Account
+
+You would need an azure storage account to complete this walk through.
+
+### STEP 1.
+Navigate to your azure portal and create a resource by clicking the `create a resourse button` then select `storage accounts` or simply click the `storage accounts` button if it appears on your home page.
+
+
+![createRes](https://user-images.githubusercontent.com/37802577/112473274-6d9f2f80-8d6e-11eb-92e7-1025c96023d5.png)
+
+
+![selectstore](https://user-images.githubusercontent.com/37802577/112473279-6f68f300-8d6e-11eb-943d-4d8e912c75ca.png)
+
+### STEP 2.
+Enter details for your new storage account and then `Review + create` . Also feel free to explore options in the other tabs (`Networking`, `Data Protection`, `Advanced` and `Tags`) for more control over your storage account. (Review process may take a few seconds).
+
+
+![storewalkthrough](https://user-images.githubusercontent.com/37802577/112473217-5d875000-8d6e-11eb-9a1b-c21735b6e8fc.png)
+
+### STEP 3:
+Complete account creation by clicking the `Create` button after review is complete.
+
+
+![create](https://user-images.githubusercontent.com/37802577/112473256-6841e500-8d6e-11eb-8d68-4cf6bbb1842a.png)
+
+
+### STEP 4:
+Go to resource after deployment is complete.
+
+
+![deploymentcompleted](https://user-images.githubusercontent.com/37802577/112473277-6ed05c80-8d6e-11eb-83fa-a01d5908adae.png).
+
+
+### STEP 5:
+In the resource page, navigate to the `Access keys` tab and `show keys`. The `show keys` button exposes your access keys and **connection string** which is all you need to use this flutter package.
+
+
+![copy_keys](https://user-images.githubusercontent.com/37802577/112519675-e2885e80-8d9a-11eb-9c8b-1ac493fe9f05.png)
+
+
+## 🤓 Maintainer(s)
+<table>
+  <tr>
+    <td align="center">
+      <a href = "https://github.com/Algure"><img src="https://avatars.githubusercontent.com/u/37802577?v=4" width="72" alt="Ajiri Gunn" /></a>
+      <p><b>Ajiri Gunn</b></p>
+      <p align="center">
+        <a href = "https://github.com/Algure"><img src = "http://www.iconninja.com/files/241/825/211/round-collaboration-social-github-code-circle-network-icon.svg" width="18" height = "18"/></a>
+        <a href = "."><img src = "https://github.com/aritraroy/social-icons/blob/master/twitter-icon.png?raw=true" width="18" height="18"/></a>
+        <a href = "."><img src = "https://github.com/aritraroy/social-icons/blob/master/linkedin-icon.png?raw=true" width="18" height="18"/></a>
+      </p>
+    </td>
+    <td align="center">
+      <a href = "https://github.com/mastersam07"><img src="https://avatars3.githubusercontent.com/u/31275429?s=460&u=b935d608a06c1604bae1d971e69a731480a27d46&v=4" width="72" alt="Samuel Abada" /></a>
+      <p><b>Samuel Abada</b></p>
+      <p align="center">
+        <a href = "https://github.com/mastersam07"><img src = "http://www.iconninja.com/files/241/825/211/round-collaboration-social-github-code-circle-network-icon.svg" width="18" height = "18"/></a>
+        <a href = "https://twitter.com/mastersam_"><img src = "https://github.com/aritraroy/social-icons/blob/master/twitter-icon.png?raw=true" width="18" height="18"/></a>
+        <a href = "https://linkedin.com/in/abada-samuel/"><img src = "https://github.com/aritraroy/social-icons/blob/master/linkedin-icon.png?raw=true" width="18" height="18"/></a>
+      </p>
+    </td>
+  </tr> 
+</table>
+
+</p>
+
+## ⭐️ License
+
+#### <a href="https://github.com/Algure/azstore/blob/master/LICENSE">MIT LICENSE</a>
