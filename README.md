@@ -3,7 +3,6 @@
 [![license](https://img.shields.io/badge/license-MIT-success.svg?style=flat-square)](https://github.com/Algure/azstore/blob/master/LICENSE)
 [![pub package](https://img.shields.io/pub/v/azstore.svg?color=success&style=flat-square)](https://pub.dartlang.org/packages/azstore)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-success.svg?style=flat-square)](https://github.com/Algure/azstore/pulls)
-![GitHub contributors](https://img.shields.io/github/contributors/Algure/azstore?color=success&style=flat-square)
 
 Access azure storage options via REST APIs.
 
