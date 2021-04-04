@@ -8,4 +8,8 @@ Updated docs.
 
 ## 0.0.3
 
-Null safety. Updated docs. Bug fixes
+Updated docs, bug fixes and backward compatibility.
+
+## 0.0.4
+
+Updated docs.

@@ -1,6 +1,6 @@
 name: azstore
 description: Access azure storage options via REST APIs.
-version: 0.0.2
+version: 0.0.4
 author: Algure <ajirie98@gmail.com>
 homepage: https://github.com/Algure/azstore
 repository: https://github.com/Algure/azstore.git
@@ -13,9 +13,9 @@ dependencies:
   flutter:
     sdk: flutter
 
-  xml: ^5.0.2
+  xml: ^4.4.1
   http: ^0.12.2
-  crypto: ^3.0.0
+  crypto: ^2.1.4
 
 dev_dependencies:
   flutter_test:

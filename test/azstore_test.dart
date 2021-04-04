@@ -50,7 +50,8 @@ Future<void> testUploadTableNode() async {
   try {
     var myPartitionKey="sfsdfsrg57865746";
     var myRowKey='237';
-    Map<String, dynamic> rowMap={"Address":"Santa Clara",
+    Map<String, dynamic> rowMap={
+      "Address":"Santa Clara",
       "Age":23,
       "AmountDue":200.23,
       "CustomerCode@odata.type":"Edm.Guid",
@@ -75,8 +76,8 @@ Future<void> testUploadTableNode() async {
   }
 }
 Future<void> testGetTableRow() async {
-  var storage = AzureStorage.parse(connectionString);
   try {
+    var storage = AzureStorage.parse(connectionString);
     var myPartitionKey="fgtdssdas";
     var myRowKey='232';
     String result=await storage.getTableRow(
