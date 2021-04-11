@@ -76,10 +76,10 @@ class AzureStorage {
   Map<String, String> config;
   Uint8List accountKey;
 
-  static final String DefaultEndpointsProtocol = 'DefaultEndpointsProtocol';
-  static final String EndpointSuffix = 'EndpointSuffix';
-  static final String AccountName = 'AccountName';
-  static final String AccountKey = 'AccountKey';
+  static final String defaultEndpointsProtocol = 'DefaultEndpointsProtocol';
+  static final String endpointSuffix = 'EndpointSuffix';
+  static final String accountName = 'AccountName';
+  static final String accountMainKey = 'AccountKey';
 
   /// Initialize with connection string.
   AzureStorage.parse(String connectionString) {
@@ -93,7 +93,7 @@ class AzureStorage {
         m[key] = val;
       }
       config = m;
-      accountKey = base64Decode(config[AccountKey]);
+      accountKey = base64Decode(config[accountMainKey]);
     } catch (e) {
       throw Exception('Parse error.');
     }
@@ -105,12 +105,12 @@ class AzureStorage {
   }
 
   Uri uri({String path = '/', Map<String, String> queryParameters}) {
-    var scheme = config[DefaultEndpointsProtocol] ?? 'https';
-    var suffix = config[EndpointSuffix] ?? 'core.windows.net';
-    var name = config[AccountName];
+    var scheme = config[defaultEndpointsProtocol] ?? 'https';
+    var suffix = config[endpointSuffix] ?? 'core.windows.net';
+    var name = config[accountName];
     return Uri(
         scheme: scheme,
-        host: '${name}.blob.${suffix}',
+        host: '$name.blob.$suffix',
         path: path,
         queryParameters: queryParameters);
   }
@@ -118,7 +118,7 @@ class AzureStorage {
   String _canonicalHeaders(Map<String, String> headers) {
     var keys = headers.keys
         .where((i) => i.startsWith('x-ms-'))
-        .map((i) => '${i}:${headers[i]}\n')
+        .map((i) => '$i:${headers[i]}\n')
         .toList();
     keys.sort();
     return keys.join();
@@ -130,7 +130,7 @@ class AzureStorage {
     }
     var keys = items.keys.toList();
     keys.sort();
-    return keys.map((i) => '\n${i}:${items[i]}').join();
+    return keys.map((i) => '\n$i:${items[i]}').join();
   }
 
   List<String> _extractQList(String message){
@@ -186,13 +186,13 @@ class AzureStorage {
     var ran = request.headers['Range'] ?? '';
     var chs = _canonicalHeaders(request.headers);
     var crs = _canonicalResources(request.url.queryParameters);
-    var name = config[AccountName];
+    var name = config[accountName];
     var path = request.url.path;
     var sig =
-        '${request.method}\n${ce}\n${cl}\n${cz}\n${cm}\n${ct}\n${dt}\n${ims}\n${imt}\n${inm}\n${ius}\n${ran}\n${chs}/${name}${path}${crs}';
+        '${request.method}\n$ce\n$cl\n$cz\n$cm\n$ct\n$dt\n$ims\n$imt\n$inm\n$ius\n$ran\n$chs/$name$path$crs';
     var mac = crypto.Hmac(crypto.sha256, accountKey);
     var digest = base64Encode(mac.convert(utf8.encode(sig)).bytes);
-    var auth = 'SharedKey ${name}:${digest}';
+    var auth = 'SharedKey $name:$digest';
     request.headers['Authorization'] = auth;
     //print(sig);
   }
@@ -213,12 +213,12 @@ class AzureStorage {
     var ran = request.headers['Range'] ?? '';
     var chs = _canonicalHeaders(request.headers);
     var crs = _canonicalResources(request.url.queryParameters);
-    var name = config[AccountName];
+    var name = config[accountName];
     var sig =
-        '${request.method}\n${ce}\n${cl}\n${cz}\n${cm}\n${ct}\n${dt}\n${ims}\n${imt}\n${inm}\n${ius}\n${ran}\n${chs}/${name}/${crs}';
+        '${request.method}\n$ce\n$cl\n$cz\n$cm\n$ct\n$dt\n$ims\n$imt\n$inm\n$ius\n$ran\n$chs/$name/$crs';
     var mac = crypto.Hmac(crypto.sha256, accountKey);
     var digest = base64Encode(mac.convert(utf8.encode(sig)).bytes);
-    var auth = 'SharedKey ${name}:${digest}';
+    var auth = 'SharedKey $name:$digest';
     request.headers['Authorization'] = auth;
   }
 
@@ -227,13 +227,13 @@ class AzureStorage {
     request.headers['x-ms-date'] = HttpDate.format(DateTime.now());
     request.headers['x-ms-version'] = '2016-05-31';
     var dt = request.headers['Date'] ?? '';
-    var name = config[AccountName];
+    var name = config[accountName];
     var path = request.url.path;
     var sig =
-        '${dt}\n/${name}${path}';
+        '$dt\n/$name$path';
     var mac = crypto.Hmac(crypto.sha256, accountKey);
     var digest = base64Encode(mac.convert(utf8.encode(sig)).bytes);
-    var auth = 'SharedKeyLite ${name}:${digest}';
+    var auth = 'SharedKeyLite $name:$digest';
     request.headers['Authorization'] = auth;
   }
 
@@ -242,7 +242,7 @@ class AzureStorage {
     String body='{';
     for(String key in bodyMap.keys){
       String mainVal=bodyMap[key].runtimeType==String?'"${bodyMap[key]}"':'${bodyMap[key]}';
-      body+='"$key":${mainVal},';
+      body+='"$key":$mainVal,';
     }
     body=body.substring(0,body.length-1)+'}';
     return body;
@@ -333,7 +333,7 @@ class AzureStorage {
   Future<void> createTable(String tableName) async {
 
     String body = '{"TableName":"$tableName"}';
-    String path='https://${config[AccountName]}.table.core.windows.net/Tables';
+    String path='https://${config[accountName]}.table.core.windows.net/Tables';
     var request = http.Request('POST', Uri.parse( path));
     request.headers['Accept'] = 'application/json;odata=nometadata';
     request.headers['Content-Type'] = 'application/json';
@@ -357,7 +357,7 @@ class AzureStorage {
   /// 'tableName' is  mandatory.
   Future<void> deleteTable( String tableName) async {
 
-    String path='https://${config[AccountName]}.table.core.windows.net/Tables(\'$tableName\')';
+    String path='https://${config[accountName]}.table.core.windows.net/Tables(\'$tableName\')';
     var request = http.Request('DELETE', Uri.parse( path));
     request.headers['Accept'] = 'application/json;odata=nometadata';
     request.headers['Content-Type'] = 'application/json';
@@ -374,7 +374,7 @@ class AzureStorage {
   ///
   Future<List<String>> getTables() async {
 
-    String path='https://${config[AccountName]}.table.core.windows.net/Tables';
+    String path='https://${config[accountName]}.table.core.windows.net/Tables';
     var request = http.Request('GET', Uri.parse( path));
     request.headers['Accept'] = 'application/json;odata=nometadata';
     request.headers['Content-Type'] = 'application/json';
@@ -404,7 +404,7 @@ class AzureStorage {
         String body,
         Map<String,dynamic> bodyMap}) async {
     body=_resolveNodeBody(body, bodyMap);
-    String path='https://${config[AccountName]}.table.core.windows.net/$tableName(PartitionKey=\'$partitionKey\', RowKey=\'$rowKey\')';
+    String path='https://${config[accountName]}.table.core.windows.net/$tableName(PartitionKey=\'$partitionKey\', RowKey=\'$rowKey\')';
     var request = http.Request('MERGE', Uri.parse( path));
     request.headers['Accept'] = 'application/json;odata=nometadata';
     request.headers['Content-Type'] = 'application/json';
@@ -429,7 +429,7 @@ class AzureStorage {
         String body,
         Map<String,dynamic> bodyMap}) async {
     body=_resolveNodeBody(body, bodyMap);
-    String path='https://${config[AccountName]}.table.core.windows.net/$tableName(PartitionKey=\'$partitionKey\', RowKey=\'$rowKey\')';
+    String path='https://${config[accountName]}.table.core.windows.net/$tableName(PartitionKey=\'$partitionKey\', RowKey=\'$rowKey\')';
     var request = http.Request('PUT', Uri.parse( path));
     request.headers['Accept'] = 'application/json;odata=nometadata';
     request.headers['Content-Type'] = 'application/json';
@@ -453,7 +453,7 @@ class AzureStorage {
         String rowKey,
         List<String> fields}) async {
     String selectParams=_resolveNodeParams(fields);
-    String path='https://${config[AccountName]}.table.core.windows.net/$tableName(PartitionKey=\'$partitionKey\',RowKey=\'$rowKey\')?\$select=${selectParams}';
+    String path='https://${config[accountName]}.table.core.windows.net/$tableName(PartitionKey=\'$partitionKey\',RowKey=\'$rowKey\')?\$select=$selectParams';
 //    print('get path: $path'); //DEBUG LOG
     var request = http.Request('GET', Uri.parse( path));
     request.headers['Accept'] = 'application/json;odata=nometadata';
@@ -482,7 +482,7 @@ class AzureStorage {
         List<String> fields}) async {
 
     String selectParams=_resolveNodeParams(fields);
-    String path='https://${config[AccountName]}.table.core.windows.net/$tableName()?\$filter=$filter&\$select=${selectParams}&\$top=$top';
+    String path='https://${config[accountName]}.table.core.windows.net/$tableName()?\$filter=$filter&\$select=$selectParams&\$top=$top';
 //    print('path to upload: $path'); //DEBUG LOG
     var request = http.Request('GET', Uri.parse( path));
     request.headers['Accept'] = 'application/json;odata=nometadata';
@@ -511,7 +511,7 @@ class AzureStorage {
       { @required String tableName,
         @required String partitionKey,
         @required String rowKey}) async {
-    String path='https://${config[AccountName]}.table.core.windows.net/$tableName(PartitionKey=\'$partitionKey\', RowKey=\'$rowKey\')';
+    String path='https://${config[accountName]}.table.core.windows.net/$tableName(PartitionKey=\'$partitionKey\', RowKey=\'$rowKey\')';
 //    print('delete path: $path');
     var request = http.Request('DELETE', Uri.parse( path));
     request.headers['Accept'] = 'application/json;odata=nometadata';
@@ -530,7 +530,7 @@ class AzureStorage {
   ///
   /// 'qName' is  mandatory.
   Future<void> createQueue(String qName) async {
-    String path='https://${config[AccountName]}.queue.core.windows.net/$qName';
+    String path='https://${config[accountName]}.queue.core.windows.net/$qName';
     var request = http.Request('PUT', Uri.parse( path));
     _sign(request);
     var res = await request.send();
@@ -545,7 +545,7 @@ class AzureStorage {
   ///
   /// 'qName' is  mandatory.
   Future<Map<String, String>> getQData(String qName) async {
-    String path='https://${config[AccountName]}.queue.core.windows.net/$qName?comp=metadata';
+    String path='https://${config[accountName]}.queue.core.windows.net/$qName?comp=metadata';
     var request = http.Request('PUT', Uri.parse( path));
     _sign(request);
     var res = await request.send();
@@ -560,7 +560,7 @@ class AzureStorage {
   ///
   /// 'qName' is  mandatory.
   Future<void> deleteQueue(String qName) async {
-    String path='https://${config[AccountName]}.queue.core.windows.net/$qName';
+    String path='https://${config[accountName]}.queue.core.windows.net/$qName';
     var request = http.Request('DELETE', Uri.parse( path));
     _sign(request);
     var res = await request.send();
@@ -573,7 +573,7 @@ class AzureStorage {
 
   /// Get a list of all queues attached to the storage account
   Future<List<String>> getQList() async {
-    String path='https://${config[AccountName]}.queue.core.windows.net?comp=list';
+    String path='https://${config[accountName]}.queue.core.windows.net?comp=list';
     var request = http.Request('GET', Uri.parse( path));
     _sign4Q(request);
     var res = await request.send();
@@ -599,7 +599,7 @@ class AzureStorage {
         int messagettl=604800,
         int vtimeout=0,
         @required String message}) async {
-    String path='https://${config[AccountName]}.queue.core.windows.net/$qName/messages?visibilitytimeout=$vtimeout&messagettl=$messagettl';
+    String path='https://${config[accountName]}.queue.core.windows.net/$qName/messages?visibilitytimeout=$vtimeout&messagettl=$messagettl';
     var request = http.Request('POST', Uri.parse( path));
     request.body='''<QueueMessage>  
     <MessageText>$message</MessageText>  
@@ -625,7 +625,7 @@ class AzureStorage {
   Future<List<AzureQMessage>> getQmessages(
       {@required String qName,
         int numOfmessages=20}) async {
-    String path='https://${config[AccountName]}.queue.core.windows.net/$qName/messages?numofmessages=$numOfmessages';
+    String path='https://${config[accountName]}.queue.core.windows.net/$qName/messages?numofmessages=$numOfmessages';
     var request = http.Request('GET', Uri.parse( path));
     _sign(request);
     var res = await request.send();
@@ -645,7 +645,7 @@ class AzureStorage {
   Future<List<AzureQMessage>> peekQmessages(
       { @required String qName,
         int numofmessages=1}) async {
-    String path='https://${config[AccountName]}.queue.core.windows.net/$qName/messages?numofmessages=$numofmessages&peekonly=true';
+    String path='https://${config[accountName]}.queue.core.windows.net/$qName/messages?numofmessages=$numofmessages&peekonly=true';
     var request = http.Request('GET', Uri.parse( path));
     _sign(request);
     var res = await request.send();
@@ -668,7 +668,7 @@ class AzureStorage {
       { @required String qName,
         @required String messageId,
         @required String popReceipt}) async {
-    String path='https://${config[AccountName]}.queue.core.windows.net/$qName/messages/$messageId?popreceipt=$popReceipt';
+    String path='https://${config[accountName]}.queue.core.windows.net/$qName/messages/$messageId?popreceipt=$popReceipt';
     var request = http.Request('DELETE', Uri.parse( path));
     _sign(request);
     var res = await request.send();
@@ -697,7 +697,7 @@ class AzureStorage {
         @required  String popReceipt}) async {
 
     int time=vTimeout!=null?vTimeout.inSeconds:0;
-    String path='https://${config[AccountName]}.queue.core.windows.net/$qName/messages/$messageId?popreceipt=$popReceipt&visibilitytimeout=$time';
+    String path='https://${config[accountName]}.queue.core.windows.net/$qName/messages/$messageId?popreceipt=$popReceipt&visibilitytimeout=$time';
     var request = http.Request('PUT', Uri.parse( path));
     request.body='''<QueueMessage>  
           <MessageText>$message</MessageText>  
@@ -716,7 +716,7 @@ class AzureStorage {
   /// 'qName': Name of the queue is  mandatory.
   ///
   Future<void> clearQmessages(String qName) async {
-    String path='https://${config[AccountName]}.queue.core.windows.net/$qName/messages';
+    String path='https://${config[accountName]}.queue.core.windows.net/$qName/messages';
     var request = http.Request('DELETE', Uri.parse( path));
     _sign(request);
     var res = await request.send();

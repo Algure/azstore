@@ -33,7 +33,6 @@ Future<void> testDeleteTableRow() async {
 }
 
 Future<void> testFilterTable() async {
-
   var storage = AzureStorage.parse(connectionString);
   print('working on results...');
   List<String> result=await storage.filterTableRows(tableName: 'profiles',
@@ -43,7 +42,6 @@ Future<void> testFilterTable() async {
     print(res);
   }
 }
-
 
 Future<void> testUploadTableNode() async {
   var storage = AzureStorage.parse(connectionString);
