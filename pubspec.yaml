@@ -1,5 +1,5 @@
 name: azstore
-description: Access azure storage options via REST APIs.
+description: Access azure storage options via REST APIs. This package handles formatting of HTTPS requests and header encryptions needed to work with azure blob, table storage and queues for any application.
 version: 0.0.4
 author: Algure <ajirie98@gmail.com>
 homepage: https://github.com/Algure/azstore
