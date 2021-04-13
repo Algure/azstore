@@ -8,6 +8,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.5.0"
+  azstore:
+    dependency: "direct main"
+    description:
+      name: azstore
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.4"
   boolean_selector:
     dependency: transitive
     description:
@@ -51,12 +58,19 @@ packages:
     source: hosted
     version: "2.1.1"
   crypto:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: crypto
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.0.1"
+    version: "2.1.5"
+  cupertino_icons:
+    dependency: "direct main"
+    description:
+      name: cupertino_icons
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.2"
   fake_async:
     dependency: transitive
     description:
@@ -75,19 +89,19 @@ packages:
     source: sdk
     version: "0.0.0"
   http:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: http
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.13.1"
+    version: "0.12.2"
   http_parser:
     dependency: transitive
     description:
       name: http_parser
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.0.0"
+    version: "3.1.4"
   matcher:
     dependency: transitive
     description:
@@ -177,13 +191,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.3.0"
-  universal_io:
-    dependency: "direct main"
-    description:
-      name: universal_io
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.0.4"
   vector_math:
     dependency: transitive
     description:
@@ -192,7 +199,7 @@ packages:
     source: hosted
     version: "2.1.0"
   xml:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: xml
       url: "https://pub.dartlang.org"
