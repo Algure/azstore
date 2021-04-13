@@ -29,13 +29,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
+  String _connectionString=  'DefaultEndpointsProtocol=httxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
+  String _resultText='';
 
   @override
   Widget build(BuildContext context) {
@@ -50,33 +46,25 @@ class _MyHomePageState extends State<MyHomePage> {
             Text(
               'You have pushed the button this many times:',
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 
 
-  Future<void> testDeleteTableRow() async {
+
+  Future<void> deleteTableRow() async {
     try {
-      var storage = AzureStorage.parse(connectionString);
+      var storage = AzureStorage.parse(_connectionString);
       await storage.deleteTableRow(tableName: 'profiles', partitionKey: 'fgtdssdas', rowKey: '232');
     }catch(e){
       print('delete exception: $e');
     }
   }
 
-  Future<void> testFilterTable() async {
-    var storage = AzureStorage.parse(connectionString);
+  Future<void> filterTable() async {
+    var storage = AzureStorage.parse(_connectionString);
     print('working on results...');
     List<String> result=await storage.filterTableRows(tableName: 'profiles',
         filter: 'Age%20lt%2024', fields: ['Age','CustomerSince','PartitionKey','RowKey'], top: 10);
@@ -86,8 +74,8 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  Future<void> testUploadTableNode() async {
-    var storage = AzureStorage.parse(connectionString);
+  Future<void> uploadTableNode() async {
+    var storage = AzureStorage.parse(_connectionString);
     try {
       var myPartitionKey="sfsdfsrg57865746";
       var myRowKey='237';
@@ -116,9 +104,10 @@ class _MyHomePageState extends State<MyHomePage> {
       print('tables upsert exception: $e');
     }
   }
-  Future<void> testGetTableRow() async {
+
+  Future<void> getTableRow() async {
     try {
-      var storage = AzureStorage.parse(connectionString);
+      var storage = AzureStorage.parse(_connectionString);
       var myPartitionKey="fgtdssdas";
       var myRowKey='232';
       String result=await storage.getTableRow(
@@ -133,7 +122,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  Future<void> testDeleteBlob() async {
+  Future<void> deleteBlob() async {
     var storage = AzureStorage.parse('your connection string');
     try {
       await storage.deleteBlob('/azpics/fdblack.png');
@@ -143,8 +132,8 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  Future<void> testUpdateQMessage() async {
-    var storage = AzureStorage.parse(connectionString);
+  Future<void> updateQMessage() async {
+    var storage = AzureStorage.parse(_connectionString);
     print('working on results...');
     try {
       await storage.updateQmessages(
@@ -158,13 +147,13 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  Future<void> testCreateQ() async {
-    var storage = AzureStorage.parse(connectionString);
+  Future<void> createQ() async {
+    var storage = AzureStorage.parse(_connectionString);
     await storage.createQueue('newer-queue');
   }
 
-  Future<void> testGetQData() async {
-    var storage = AzureStorage.parse(connectionString);
+  Future<void> getQData() async {
+    var storage = AzureStorage.parse(_connectionString);
     try {
       String qName='myqueue';
       Map<String, String> result = await storage.getQData(qName);
@@ -177,14 +166,14 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  Future<void> testDeleteQ() async {
-    var storage = AzureStorage.parse(connectionString);
+  Future<void> deleteQ() async {
+    var storage = AzureStorage.parse(_connectionString);
     await storage.deleteQueue('newer-queue');
     print('done');
   }
 
-  Future<void> testGetQList() async {
-    var storage = AzureStorage.parse(connectionString);
+  Future<void> getQList() async {
+    var storage = AzureStorage.parse(_connectionString);
     List<String> result=await storage.getQList();
     print('showing queue list\n');
     for(String res in result){
@@ -193,8 +182,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
 
-  Future<void> testPutMessage() async {
-    var storage = AzureStorage.parse(connectionString);
+  Future<void> putMessage() async {
+    var storage = AzureStorage.parse(_connectionString);
     print('working on results...');
     try {
       await storage.putQMessage(qName:'ttable', message: 'testing expiration');
@@ -203,8 +192,8 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  Future<void> testGetQMessages() async {
-    var storage = AzureStorage.parse(connectionString);
+  Future<void> getQMessages() async {
+    var storage = AzureStorage.parse(_connectionString);
     print('working on results...');
     try {
       List<AzureQMessage> result = await storage.getQmessages(qName: 'ttable',//Required
@@ -219,8 +208,8 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  Future<void> testPeekQMessages() async {
-    var storage = AzureStorage.parse(connectionString);
+  Future<void> peekQMessages() async {
+    var storage = AzureStorage.parse(_connectionString);
     try {
       List<AzureQMessage> result = await storage.peekQmessages(qName: 'ttable');
       print('showing peek results');
@@ -232,8 +221,8 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  Future<void> testClearQMessage() async {
-    var storage = AzureStorage.parse(connectionString);
+  Future<void> clearQMessage() async {
+    var storage = AzureStorage.parse(_connectionString);
     print('working on results...');
     try {
       await storage.clearQmessages('ttable');
@@ -243,8 +232,8 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  Future<void> testDeleteMessage() async {
-    var storage = AzureStorage.parse(connectionString);
+  Future<void> deleteQMessage() async {
+    var storage = AzureStorage.parse(_connectionString);
     print('working on results...');
     try {
       await storage.delQmessages(qName: 'ttable', messageId: '27bc633b-4de0-42bf-bea6-0860bd410f4e', popReceipt: 'AgAAAAMAAAAAAAAAX3e0UwAg1wE=');
@@ -252,5 +241,27 @@ class _MyHomePageState extends State<MyHomePage> {
     }catch(e){
       print('delete QM error: $e');
     }
+  }
+}
+
+class MyButton extends StatelessWidget {
+  MyButton({this.buttonColor,  required this.text, this.textColor,  this.onPressed});
+  Color? buttonColor;
+  String text;
+  Function()? onPressed;
+  Color? textColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.maxFinite,
+      margin: EdgeInsets.all(4),
+      decoration: BoxDecoration(
+          color: buttonColor??Colors.black,
+          borderRadius: BorderRadius.circular(5)
+      ),
+      child: TextButton(onPressed:this.onPressed??(){},
+        child: Text(text, style: TextStyle(color: textColor??Colors.white),),),
+    );
   }
 }

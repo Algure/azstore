@@ -24,7 +24,8 @@ dependencies:
   flutter:
     sdk: flutter
 
-  azstore: ^0.0.4
+  azstore:
+    path: C:/FlutterProjects/azstore
   cupertino_icons: ^1.0.2
 
 dev_dependencies:

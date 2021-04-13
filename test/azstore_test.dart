@@ -23,7 +23,7 @@ Future<void> main() async {
 //   await testFilterTable();
 }
 
-Future<void> testDeleteTableRow() async {
+Future<void> deleteTableRow() async {
   try {
     var storage = AzureStorage.parse(connectionString);
     await storage.deleteTableRow(tableName: 'profiles', partitionKey: 'fgtdssdas', rowKey: '232');
@@ -32,7 +32,7 @@ Future<void> testDeleteTableRow() async {
   }
 }
 
-Future<void> testFilterTable() async {
+Future<void> filterTable() async {
   var storage = AzureStorage.parse(connectionString);
   print('working on results...');
   List<String> result=await storage.filterTableRows(tableName: 'profiles',
@@ -43,7 +43,7 @@ Future<void> testFilterTable() async {
   }
 }
 
-Future<void> testUploadTableNode() async {
+Future<void> uploadTableNode() async {
   var storage = AzureStorage.parse(connectionString);
   try {
     var myPartitionKey="sfsdfsrg57865746";
@@ -73,7 +73,8 @@ Future<void> testUploadTableNode() async {
     print('tables upsert exception: $e');
   }
 }
-Future<void> testGetTableRow() async {
+
+Future<void> getTableRow() async {
   try {
     var storage = AzureStorage.parse(connectionString);
     var myPartitionKey="fgtdssdas";
@@ -90,7 +91,7 @@ Future<void> testGetTableRow() async {
   }
 }
 
-Future<void> testDeleteBlob() async {
+Future<void> deleteBlob() async {
   var storage = AzureStorage.parse('your connection string');
   try {
     await storage.deleteBlob('/azpics/fdblack.png');
@@ -100,7 +101,7 @@ Future<void> testDeleteBlob() async {
   }
 }
 
-Future<void> testUpdateQMessage() async {
+Future<void> updateQMessage() async {
   var storage = AzureStorage.parse(connectionString);
   print('working on results...');
   try {
@@ -115,12 +116,12 @@ Future<void> testUpdateQMessage() async {
   }
 }
 
-Future<void> testCreateQ() async {
+Future<void> createQ() async {
   var storage = AzureStorage.parse(connectionString);
   await storage.createQueue('newer-queue');
 }
 
-Future<void> testGetQData() async {
+Future<void> getQData() async {
   var storage = AzureStorage.parse(connectionString);
   try {
     String qName='myqueue';
@@ -134,13 +135,13 @@ Future<void> testGetQData() async {
   }
 }
 
-Future<void> testDeleteQ() async {
+Future<void> deleteQ() async {
   var storage = AzureStorage.parse(connectionString);
   await storage.deleteQueue('newer-queue');
   print('done');
 }
 
-Future<void> testGetQList() async {
+Future<void> getQList() async {
   var storage = AzureStorage.parse(connectionString);
   List<String> result=await storage.getQList();
   print('showing queue list\n');
@@ -150,7 +151,7 @@ Future<void> testGetQList() async {
 }
 
 
-Future<void> testPutMessage() async {
+Future<void> putMessage() async {
   var storage = AzureStorage.parse(connectionString);
   print('working on results...');
   try {
@@ -160,7 +161,7 @@ Future<void> testPutMessage() async {
   }
 }
 
-Future<void> testGetQMessages() async {
+Future<void> getQMessages() async {
   var storage = AzureStorage.parse(connectionString);
   print('working on results...');
   try {
@@ -176,7 +177,7 @@ Future<void> testGetQMessages() async {
   }
 }
 
-Future<void> testPeekQMessages() async {
+Future<void> peekQMessages() async {
   var storage = AzureStorage.parse(connectionString);
   try {
     List<AzureQMessage> result = await storage.peekQmessages(qName: 'ttable');
@@ -189,7 +190,7 @@ Future<void> testPeekQMessages() async {
   }
 }
 
-Future<void> testClearQMessage() async {
+Future<void> clearQMessage() async {
   var storage = AzureStorage.parse(connectionString);
   print('working on results...');
   try {
@@ -200,7 +201,7 @@ Future<void> testClearQMessage() async {
   }
 }
 
-Future<void> testDeleteMessage() async {
+Future<void> deleteQMessage() async {
   var storage = AzureStorage.parse(connectionString);
   print('working on results...');
   try {
