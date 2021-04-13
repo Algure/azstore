@@ -1,5 +1,12 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:azstore/azstore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'package:path_provider/path_provider.dart';
 
 void main() {
   runApp(MyApp());
@@ -20,7 +27,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, required this.title}) : super(key: key);
+  MyHomePage({Key key,  this.title}) : super(key: key);
 
   final String title;
 
@@ -29,9 +36,15 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final _picker= ImagePicker();
+  final navTextStyle=TextStyle(
+      color: Colors.white,
+      fontSize: 14
+  );
 
   String _connectionString=  'DefaultEndpointsProtocol=httxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
   String _resultText='';
+  bool _progress=false;
 
   @override
   Widget build(BuildContext context) {
@@ -40,26 +53,46 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-          ],
+        child: ModalProgressHUD (
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Text(
+                'Push button to test function:',
+              ),
+              ListView(
+                shrinkWrap: true,
+
+                children: [
+                  MyButton(text: 'Upload table node', buttonColor: Colors.blue, onPressed: uploadTableNode,),
+                  MyButton(text: 'Delete table row', buttonColor: Colors.red, onPressed: deleteTableRow,),
+                  MyButton(text: 'Filter tables',buttonColor: Colors.green, onPressed: filterTable,),
+                  MyButton(text: 'Get table row', onPressed: getTableRow,),
+                  MyButton(text: 'Put blob image',buttonColor: Colors.blue, onPressed: uploadBlobImage,),
+                  MyButton(text: 'Delete blob', buttonColor: Colors.red,onPressed: deleteBlob,),
+                  MyButton(text: 'Create Queue',buttonColor: Colors.blue, onPressed: createQ,),
+                  MyButton(text: 'Get Queue Data',buttonColor: Colors.green, onPressed: getQData,),
+                  MyButton(text: 'Insert queue message',buttonColor: Colors.blue, onPressed: putQMessage,),
+                  MyButton(text: 'Delete Queue', buttonColor: Colors.red,onPressed: deleteQ,),
+                  MyButton(text: 'Get Queue list', buttonColor: Colors.green, onPressed: getQList,),
+                  MyButton(text: 'Get all queue messages',buttonColor: Colors.green, onPressed: clearQMessage,),
+                ],
+              )
+            ],
+          ),
         ),
       ),
     );
   }
 
-
-
   Future<void> deleteTableRow() async {
     try {
       var storage = AzureStorage.parse(_connectionString);
       await storage.deleteTableRow(tableName: 'profiles', partitionKey: 'fgtdssdas', rowKey: '232');
+      // showInfoDialog(context, 'Delete Success');//Optional prompt
     }catch(e){
       print('delete exception: $e');
+      // showErrorDialog(context, e.toString());//ALTERNATIVE PROMPT
     }
   }
 
@@ -72,6 +105,7 @@ class _MyHomePageState extends State<MyHomePage> {
     for(String res in result){
       print(res);
     }
+    // showInfoDialog(context, 'Success');//Optional prompt
   }
 
   Future<void> uploadTableNode() async {
@@ -99,7 +133,7 @@ class _MyHomePageState extends State<MyHomePage> {
           partitionKey: myPartitionKey,
           bodyMap: rowMap
       );
-      print('done uploading');
+      // showInfoDialog(context, 'Success');//Optional prompt
     }catch(e){
       print('tables upsert exception: $e');
     }
@@ -117,6 +151,7 @@ class _MyHomePageState extends State<MyHomePage> {
           fields: ['Address','CustomerSince']
       );
       print('result: $result');
+      // showInfoDialog(context, 'Success');
     }catch(e){
       print('tables get exception: $e');
     }
@@ -126,9 +161,11 @@ class _MyHomePageState extends State<MyHomePage> {
     var storage = AzureStorage.parse('your connection string');
     try {
       await storage.deleteBlob('/azpics/fdblack.png');
-      print('done deleting');//Do something else
+      // showInfoDialog(context, 'Delete Success');//Optional prompt
     }catch(e){
       print('exception: $e');
+      // showErrorDialog(context, '$e');//Optional prompt
+
     }
   }
 
@@ -142,14 +179,17 @@ class _MyHomePageState extends State<MyHomePage> {
           popReceipt: 'AgAAAAMAAAAAAAAAzVPboAkg1wE=',
           message: 'testing update: This is an update');
       print('done');
+      // showInfoDialog(context, ' Success');//Optional prompt
     }catch(e){
       print('delete QM error: $e');
+      // showErrorDialog(context, e.toString());//Optional prompt
     }
   }
 
   Future<void> createQ() async {
     var storage = AzureStorage.parse(_connectionString);
     await storage.createQueue('newer-queue');
+    // showInfoDialog(context, 'Create success');//Optional prompt
   }
 
   Future<void> getQData() async {
@@ -161,8 +201,10 @@ class _MyHomePageState extends State<MyHomePage> {
       for (var res in result.entries) {
         print('${res.key}: ${res.value}');
       }
+      // showInfoDialog(context, 'Success');//Optional prompt
     }catch(e){
       print('get data error: $e');
+      // showErrorDialog(context, e.toString());
     }
   }
 
@@ -170,6 +212,7 @@ class _MyHomePageState extends State<MyHomePage> {
     var storage = AzureStorage.parse(_connectionString);
     await storage.deleteQueue('newer-queue');
     print('done');
+    // showInfoDialog(context, 'Success');//Optional prompt
   }
 
   Future<void> getQList() async {
@@ -179,16 +222,18 @@ class _MyHomePageState extends State<MyHomePage> {
     for(String res in result){
       print(res);
     }
+    // showInfoDialog(context, 'Success');//Optional prompt
   }
 
-
-  Future<void> putMessage() async {
+  Future<void> putQMessage() async {
     var storage = AzureStorage.parse(_connectionString);
     print('working on results...');
     try {
       await storage.putQMessage(qName:'ttable', message: 'testing expiration');
+      showInfoDialog(context, 'Success');//Optional prompt
     }catch(e){
       print('get data error: $e');
+      showErrorDialog(context, e.toString());//Optional prompt
     }
   }
 
@@ -203,8 +248,11 @@ class _MyHomePageState extends State<MyHomePage> {
       for (var res in result) {
         print('message ${res}');
       }
+      showInfoDialog(context, 'Success');//Optional prompt
+
     }catch (e){
       print('Q get messages exception $e');
+      showErrorDialog(context, e.toString());//Optional prompt
     }
   }
 
@@ -216,8 +264,10 @@ class _MyHomePageState extends State<MyHomePage> {
       for (var res in result) {
         print('message ${res.messageText}');
       }
+      showInfoDialog(context, 'Success');//Optional prompt
     }catch (e){
       print('Q peek messages exception $e');
+      showErrorDialog(context, e.toString());//Optional prompt
     }
   }
 
@@ -227,8 +277,10 @@ class _MyHomePageState extends State<MyHomePage> {
     try {
       await storage.clearQmessages('ttable');
       print('done');
+      showInfoDialog(context, 'Success');//Optional prompt
     }catch(e){
       print('delete QM error: $e');
+      showErrorDialog(context, e.toString());//Optional prompt
     }
   }
 
@@ -238,18 +290,132 @@ class _MyHomePageState extends State<MyHomePage> {
     try {
       await storage.delQmessages(qName: 'ttable', messageId: '27bc633b-4de0-42bf-bea6-0860bd410f4e', popReceipt: 'AgAAAAMAAAAAAAAAX3e0UwAg1wE=');
       print('done');
+      showInfoDialog(context, 'Success');//Optional prompt
     }catch(e){
       print('delete QM error: $e');
+      showErrorDialog(context, e.toString());//Optional prompt
     }
   }
+
+  uploadBlobImage() async {
+    try {
+      showProgress(true);
+      PickedFile tempFile = await _picker.getImage(source: ImageSource.gallery);
+      assert(tempFile!=null);
+      String compressedPath = await compressImage(
+          File(tempFile!=null?tempFile.path:'').absolute.path);
+      Uint8List bytes = File(compressedPath).readAsBytesSync();
+      var storage = AzureStorage.parse(_connectionString);
+      var picId=getUniqueIdWPath(compressedPath);
+      await storage.putBlob('/gmart-pics/$picId.jpg',
+        bodyBytes: bytes,
+        contentType: 'image/png',
+      );
+      showInfoDialog(context, 'Success');//Optional prompt
+      showProgress(false);
+    }catch(e){
+      showProgress(false);
+      print('An error occured. Error: $e');
+      showErrorDialog(context, e.toString());//Optional prompt
+    }
+  }
+
+  Future<String> compressImage(String imagePath) async {
+    final directory= await getApplicationDocumentsDirectory();
+    String path= directory.path+'/my_app_pics';
+    if(!Directory(path).existsSync()) await Directory(path).create();
+    String fileId=getUniqueIdWPath(imagePath);
+    path+='/$fileId.jpg';
+    File newFile=File(path);
+    await newFile.create();
+    File compressionFile= await FlutterImageCompress.compressAndGetFile(imagePath, path, quality: 25, rotate: 0);
+    return compressionFile.path;
+  }
+  
+  void showInfoDialog(BuildContext context, String text){
+    showCustomDialog(context: context, icon:Icons.info, iconColor: Colors.blue, text: text );
+  }
+  
+  void showErrorDialog(BuildContext context, String errorText){
+    showCustomDialog(context: context, icon:Icons.warning, iconColor: Colors.red, text: errorText );
+  }
+  
+  void showCustomDialog({ BuildContext context,  IconData icon,  Color iconColor,  String text, List buttonList}){
+    List<Widget> butList=[];
+    if(buttonList!=null && buttonList.length>0){
+      for(var arr in buttonList){
+        butList.add(Expanded(
+          child: Container(
+            margin: EdgeInsets.all(4.0),
+            decoration: BoxDecoration(
+                color: arr[1],
+                borderRadius: BorderRadius.circular(20)
+            ),
+            child: FlatButton(onPressed: arr[2],
+              child: Padding(
+                padding: EdgeInsets.all(2),
+                child: Text(arr[0], style: navTextStyle,),
+              ),
+              splashColor: Colors.white,),
+          ),
+        ));
+      }
+    }
+    Dialog errorDialog= Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      backgroundColor: Colors.white,
+      child: Container(
+        height: 350,
+        child: Column(
+          children: [
+            Expanded(child: Icon(icon, color: iconColor, size: 200,)),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(text, style: TextStyle(color: Colors.blue.shade900, fontWeight: FontWeight.bold), textAlign: TextAlign.center,),
+            ),
+            SizedBox(height: 20,),
+            Container(
+              height: butList!=null?50:2,
+              padding: EdgeInsets.all(8.0),
+              child: Row(
+                children: buttonList!=null?butList:[],
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+    showGeneralDialog(context: context,
+        barrierLabel: text,
+        barrierDismissible: true,
+        barrierColor: Colors.black.withOpacity(0.5),
+        transitionDuration: Duration(milliseconds: 500),
+        transitionBuilder: (_, anim, __, child){
+          return SlideTransition(position: Tween(begin: Offset(-1,0), end: Offset(0,0)).animate(anim), child: child,);
+        },
+        pageBuilder: (BuildContext context, _, __)=>(errorDialog)
+    );
+  }
+
+  String getUniqueIdWPath(String path) {
+    List unis=path.split('/');
+    return unis[unis.length-1].split('.')[0];
+  }
+
+  void showProgress(bool bool) {
+    setState(() {
+      _progress=true;
+    });
+  }
+
 }
 
 class MyButton extends StatelessWidget {
-  MyButton({this.buttonColor,  required this.text, this.textColor,  this.onPressed});
-  Color? buttonColor;
+  MyButton({this.buttonColor,   this.text, this.textColor,  this.onPressed});
+  Color buttonColor;
   String text;
-  Function()? onPressed;
-  Color? textColor;
+  Function() onPressed;
+  Color textColor;
 
   @override
   Widget build(BuildContext context) {

@@ -26,45 +26,45 @@ class AzureStorageException implements Exception {
 }
 
 class AzureQMessage {
-  String messageId;
-  String insertionTime;
-  String expirationTime;
-  String popReceipt;
-  String timeNextVisible;
-  String dequeueCount;
-  String messageText;
+  String? messageId;
+  String? insertionTime;
+  String? expirationTime;
+  String? popReceipt;
+  String? timeNextVisible;
+  String? dequeueCount;
+  String? messageText;
 
   AzureQMessage.fromXML(String xmlObj) {
     var xml = XmlDocument.parse(xmlObj);
     if (xml == null) return;
-    messageId = xml.getElement('QueueMessage').getElement('MessageId') != null
-        ? xml.getElement('QueueMessage').getElement('MessageId').text
+    messageId = xml.getElement('QueueMessage')!.getElement('MessageId') != null
+        ? xml.getElement('QueueMessage')!.getElement('MessageId')!.text
         : '';
 
     insertionTime =
-        xml.getElement('QueueMessage').getElement('InsertionTime') != null
-            ? xml.getElement('QueueMessage').getElement('InsertionTime').text
+        xml.getElement('QueueMessage')!.getElement('InsertionTime') != null
+            ? xml.getElement('QueueMessage')!.getElement('InsertionTime')!.text
             : '';
 
     expirationTime =
-        xml.getElement('QueueMessage').getElement('ExpirationTime') != null
-            ? xml.getElement('QueueMessage').getElement('ExpirationTime').text
+        xml.getElement('QueueMessage')!.getElement('ExpirationTime') != null
+            ? xml.getElement('QueueMessage')!.getElement('ExpirationTime')!.text
             : '';
 
-    popReceipt = xml.getElement('QueueMessage').getElement('PopReceipt') != null
-        ? xml.getElement('QueueMessage').getElement('PopReceipt').text
+    popReceipt = xml.getElement('QueueMessage')!.getElement('PopReceipt') != null
+        ? xml.getElement('QueueMessage')!.getElement('PopReceipt')!.text
         : '';
     timeNextVisible =
-        xml.getElement('QueueMessage').getElement('TimeNextVisible') != null
-            ? xml.getElement('QueueMessage').getElement('TimeNextVisible').text
+        xml.getElement('QueueMessage')!.getElement('TimeNextVisible') != null
+            ? xml.getElement('QueueMessage')!.getElement('TimeNextVisible')!.text
             : '';
     dequeueCount =
-        xml.getElement('QueueMessage').getElement('DequeueCount') != null
-            ? xml.getElement('QueueMessage').getElement('DequeueCount').text
+        xml.getElement('QueueMessage')!.getElement('DequeueCount') != null
+            ? xml.getElement('QueueMessage')!.getElement('DequeueCount')!.text
             : '';
     messageText =
-        xml.getElement('QueueMessage').getElement('MessageText') != null
-            ? xml.getElement('QueueMessage').getElement('MessageText').text
+        xml.getElement('QueueMessage')!.getElement('MessageText') != null
+            ? xml.getElement('QueueMessage')!.getElement('MessageText')!.text
             : '';
   }
 
@@ -84,8 +84,8 @@ class AzureQMessage {
 
 /// Azure Storage Client
 class AzureStorage {
-  Map<String, String> config;
-  Uint8List accountKey;
+  late Map<String, String> config;
+  late Uint8List accountKey;
 
   static final String defaultEndpointsProtocol = 'DefaultEndpointsProtocol';
   static final String endpointSuffix = 'EndpointSuffix';
@@ -104,7 +104,7 @@ class AzureStorage {
         m[key] = val;
       }
       config = m;
-      accountKey = base64Decode(config[accountMainKey]);
+      accountKey = base64Decode(config[accountMainKey]!);
     } catch (e) {
       throw Exception('Parse error.');
     }
@@ -115,7 +115,7 @@ class AzureStorage {
     return config.toString();
   }
 
-  Uri uri({String path = '/', Map<String, String> queryParameters}) {
+  Uri uri({String path = '/', Map<String, String>? queryParameters}) {
     var scheme = config[defaultEndpointsProtocol] ?? 'https';
     var suffix = config[endpointSuffix] ?? 'core.windows.net';
     var name = config[accountName];
@@ -148,7 +148,7 @@ class AzureStorage {
     List<String> tabList = [];
     var xx = XmlDocument.parse(message);
     for (var qNode
-        in xx.getElement('EnumerationResults').findAllElements('Name')) {
+        in xx.getElement('EnumerationResults')!.findAllElements('Name')) {
       String name = qNode.text;
       tabList.add(name);
     }
@@ -158,14 +158,14 @@ class AzureStorage {
   List<AzureQMessage> _extractQMessages(String message) {
     List<AzureQMessage> tabList = [];
     var xx = XmlDocument.parse(message);
-    for (var qNode in xx.getElement('QueueMessagesList').nodes) {
+    for (var qNode in xx.getElement('QueueMessagesList')!.nodes) {
       AzureQMessage azq = AzureQMessage.fromXML(qNode.toString());
       tabList.add(azq);
     }
     return tabList;
   }
 
-  String _resolveNodeParams(List<String> fields) {
+  String _resolveNodeParams(List<String>? fields) {
     String selectParams = '';
     if (fields != null && fields.length > 0) {
       for (String s in fields) {
@@ -175,7 +175,7 @@ class AzureStorage {
     return selectParams == '' ? '*' : selectParams.trim().substring(1);
   }
 
-  String _resolveNodeBody(String body, Map<String, dynamic> bodyMap) {
+  String? _resolveNodeBody(String? body, Map<String, dynamic>? bodyMap) {
     if (bodyMap != null && bodyMap.length > 0) {
       body = _getJsonFromMap(bodyMap);
     }
@@ -272,9 +272,9 @@ class AzureStorage {
   ///
   /// `body` and `bodyBytes` are exclusive and mandatory.
   Future<void> putBlob(String path,
-      {String body,
-      Uint8List bodyBytes,
-      String contentType,
+      {String? body,
+      Uint8List? bodyBytes,
+      required String contentType,
       BlobType type = BlobType.BlockBlob}) async {
     var request = http.Request('PUT', uri(path: path));
     request.headers['x-ms-blob-type'] =
@@ -319,7 +319,7 @@ class AzureStorage {
 
   /// Append block to blob.
   Future<void> appendBlock(String path,
-      {String body, Uint8List bodyBytes}) async {
+      {String? body, Uint8List? bodyBytes}) async {
     var request = http.Request(
         'PUT', uri(path: path, queryParameters: {'comp': 'appendblock'}));
     if (bodyBytes != null) {
@@ -356,10 +356,7 @@ class AzureStorage {
     var message = await res.stream.bytesToString(); //DEBUG
     if (res.statusCode == 201 || res.statusCode == 204) {
       return;
-    } else if (res.statusCode == 204) {
-      return false;
     }
-
     throw AzureStorageException(message, res.statusCode, res.headers);
   }
 
@@ -383,7 +380,7 @@ class AzureStorage {
 
   /// Get a list of all tables in storage accout
   ///
-  Future<List<String>> getTables() async {
+  Future<List<String?>> getTables() async {
     String path =
         'https://${config[accountName]}.table.core.windows.net/Tables';
     var request = http.Request('GET', Uri.parse(path));
@@ -395,7 +392,7 @@ class AzureStorage {
     var message = await res.stream.bytesToString();
 
     if (res.statusCode == 200) {
-      List<String> tabList = [];
+      List<String?> tabList = [];
       var jsonResponse = await jsonDecode(message);
       for (var tData in jsonResponse['value']) {
         tabList.add(tData['TableName']);
@@ -409,18 +406,18 @@ class AzureStorage {
   ///
   /// 'tableName', `partitionKey` and `rowKey` are all mandatory. `body` and `bodyMap` are exclusive and mandatory.
   Future<void> upsertTableRow(
-      {@required String tableName,
-      @required String partitionKey,
-      @required String rowKey,
-      String body,
-      Map<String, dynamic> bodyMap}) async {
+      {required String tableName,
+      required String partitionKey,
+      required String rowKey,
+      String? body,
+      Map<String, dynamic>? bodyMap}) async {
     body = _resolveNodeBody(body, bodyMap);
     String path =
         'https://${config[accountName]}.table.core.windows.net/$tableName(PartitionKey=\'$partitionKey\', RowKey=\'$rowKey\')';
     var request = http.Request('MERGE', Uri.parse(path));
     request.headers['Accept'] = 'application/json;odata=nometadata';
     request.headers['Content-Type'] = 'application/json';
-    request.headers['Content-Length'] = '${body.length}';
+    request.headers['Content-Length'] = '${body!.length}';
     request.body = body;
     _sign4Tables(request);
     var res = await request.send();
@@ -435,18 +432,18 @@ class AzureStorage {
   ///
   /// 'tableName',`partitionKey` and `rowKey` are all mandatory. `body` and `bodyMap` are exclusive and mandatory.
   Future<void> putTableRow(
-      {String tableName,
-      String partitionKey,
-      String rowKey,
-      String body,
-      Map<String, dynamic> bodyMap}) async {
+      {String? tableName,
+      String? partitionKey,
+      String? rowKey,
+      String? body,
+      Map<String, dynamic>? bodyMap}) async {
     body = _resolveNodeBody(body, bodyMap);
     String path =
         'https://${config[accountName]}.table.core.windows.net/$tableName(PartitionKey=\'$partitionKey\', RowKey=\'$rowKey\')';
     var request = http.Request('PUT', Uri.parse(path));
     request.headers['Accept'] = 'application/json;odata=nometadata';
     request.headers['Content-Type'] = 'application/json';
-    request.headers['Content-Length'] = '${body.length}';
+    request.headers['Content-Length'] = '${body!.length}';
     request.body = body;
     _sign4Tables(request);
     var res = await request.send();
@@ -461,10 +458,10 @@ class AzureStorage {
   ///
   /// 'tableName','partitionKey' and 'rowKey' are all mandatory. If no fields are specified, all fields attached to the entry are returned
   Future<String> getTableRow(
-      {String tableName,
-      String partitionKey,
-      String rowKey,
-      List<String> fields}) async {
+      {String? tableName,
+      String? partitionKey,
+      String? rowKey,
+      List<String>? fields}) async {
     String selectParams = _resolveNodeParams(fields);
     String path =
         'https://${config[accountName]}.table.core.windows.net/$tableName(PartitionKey=\'$partitionKey\',RowKey=\'$rowKey\')?\$select=$selectParams';
@@ -490,10 +487,10 @@ class AzureStorage {
   /// filter: Required. Logic for filter condition can be gotten from official documentation e.g `RowKey%20eq%"237"` or  `AmountDue%20gt%2010`.
   ///fields: Optional. Specify columns/fields to be returned. By default, all fields are returned by the package
   Future<List<String>> filterTableRows(
-      {@required String tableName,
-      @required String filter,
+      {required String tableName,
+      required String filter,
       int top = 20,
-      List<String> fields}) async {
+      List<String>? fields}) async {
     String selectParams = _resolveNodeParams(fields);
     String path =
         'https://${config[accountName]}.table.core.windows.net/$tableName()?\$filter=$filter&\$select=$selectParams&\$top=$top';
@@ -522,9 +519,9 @@ class AzureStorage {
   ///
   ///  'tableName', `partitionKey` and `rowKey` are all mandatory.
   Future<void> deleteTableRow(
-      {@required String tableName,
-      @required String partitionKey,
-      @required String rowKey}) async {
+      {required String tableName,
+      required String partitionKey,
+      required String rowKey}) async {
     String path =
         'https://${config[accountName]}.table.core.windows.net/$tableName(PartitionKey=\'$partitionKey\', RowKey=\'$rowKey\')';
 //    print('delete path: $path');
@@ -614,10 +611,10 @@ class AzureStorage {
   ///
   /// 'messagettl': Optional. Specifies the time-to-live interval for the message, in seconds. Prior to version 2017-07-29, the maximum time-to-live allowed is 7 days. For version 2017-07-29 or later, the maximum time-to-live can be any positive number, as well as -1 indicating that the message does not expire. If this parameter is omitted, the default time-to-live is 7 days.
   Future<void> putQMessage(
-      {@required String qName,
+      {required String qName,
       int messagettl = 604800,
       int vtimeout = 0,
-      @required String message}) async {
+      required String message}) async {
     String path =
         'https://${config[accountName]}.queue.core.windows.net/$qName/messages?visibilitytimeout=$vtimeout&messagettl=$messagettl';
     var request = http.Request('POST', Uri.parse(path));
@@ -643,7 +640,7 @@ class AzureStorage {
   ///
   ///numofmessages:	Optional. A nonzero integer value that specifies the number of messages to retrieve from the queue, up to a maximum of 32. If fewer are visible, the visible messages are returned. By default, this API retrieves 20 messages from the queue with this operation.
   Future<List<AzureQMessage>> getQmessages(
-      {@required String qName, int numOfmessages = 20}) async {
+      {required String qName, int numOfmessages = 20}) async {
     String path =
         'https://${config[accountName]}.queue.core.windows.net/$qName/messages?numofmessages=$numOfmessages';
     var request = http.Request('GET', Uri.parse(path));
@@ -663,7 +660,7 @@ class AzureStorage {
   ///
   ///numofmessages:	Optional. A nonzero integer value that specifies the number of messages to retrieve from the queue, up to a maximum of 32. If fewer are visible, the visible messages are returned. By default, a single message is retrieved from the queue with this operation. This API also retrieves a single message with this mtod by default
   Future<List<AzureQMessage>> peekQmessages(
-      {@required String qName, int numofmessages = 1}) async {
+      {required String qName, int numofmessages = 1}) async {
     String path =
         'https://${config[accountName]}.queue.core.windows.net/$qName/messages?numofmessages=$numofmessages&peekonly=true';
     var request = http.Request('GET', Uri.parse(path));
@@ -685,9 +682,9 @@ class AzureStorage {
   ///
   /// 'popReceipt':	Required. A valid pop receipt value returned from an earlier call to the Get Messages or Update Message operation.
   Future<void> delQmessages(
-      {@required String qName,
-      @required String messageId,
-      @required String popReceipt}) async {
+      {required String qName,
+      required String messageId,
+      required String popReceipt}) async {
     String path =
         'https://${config[accountName]}.queue.core.windows.net/$qName/messages/$messageId?popreceipt=$popReceipt';
     var request = http.Request('DELETE', Uri.parse(path));
@@ -710,11 +707,11 @@ class AzureStorage {
   ///
   ///visibilitytimeout	Required. Specifies the new visibility timeout value, in seconds, relative to server time. The new value must be larger than or equal to 0, and cannot be larger than 7 days. This API defaults this value to 0. The visibility timeout of a message cannot be set to a value later than the expiry time. A message can be updated until it has been deleted or has expired.
   Future<void> updateQmessages(
-      {@required String qName,
-      @required String messageId,
-      Duration vTimeout,
-      @required String message,
-      @required String popReceipt}) async {
+      {required String qName,
+      required String messageId,
+      Duration? vTimeout,
+      required String message,
+      required String popReceipt}) async {
     int time = vTimeout != null ? vTimeout.inSeconds : 0;
     String path =
         'https://${config[accountName]}.queue.core.windows.net/$qName/messages/$messageId?popreceipt=$popReceipt&visibilitytimeout=$time';

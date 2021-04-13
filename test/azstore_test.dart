@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:azstore/azstore.dart';
 import 'package:xml/xml.dart';
 
+
 Future<void> main() async {
 //  await testDeleteQ();
 //  await testQs();
@@ -23,6 +24,7 @@ Future<void> main() async {
 //   await testFilterTable();
 }
 
+
 Future<void> deleteTableRow() async {
   try {
     var storage = AzureStorage.parse(connectionString);
@@ -36,7 +38,7 @@ Future<void> filterTable() async {
   var storage = AzureStorage.parse(connectionString);
   print('working on results...');
   List<String> result=await storage.filterTableRows(tableName: 'profiles',
-    filter: 'Age%20lt%2024', fields: ['Age','CustomerSince','PartitionKey','RowKey'], top: 10);
+      filter: 'Age%20lt%2024', fields: ['Age','CustomerSince','PartitionKey','RowKey'], top: 10);
   print('showing filter results');
   for(String res in result){
     print(res);
@@ -62,7 +64,7 @@ Future<void> uploadTableNode() async {
       "PartitionKey":"$myPartitionKey",
       "RowKey":"$myRowKey"
     };
-  await storage.upsertTableRow(
+    await storage.upsertTableRow(
         tableName: 'profiles',
         rowKey:myRowKey,
         partitionKey: myPartitionKey,
@@ -105,14 +107,14 @@ Future<void> updateQMessage() async {
   var storage = AzureStorage.parse(connectionString);
   print('working on results...');
   try {
-   await storage.updateQmessages(
+    await storage.updateQmessages(
         qName: 'ttable',
-      messageId: 'c9aaeea8-4d47-4cf8-a080-250fb218468f',
-    popReceipt: 'AgAAAAMAAAAAAAAAzVPboAkg1wE=',
-    message: 'testing update: This is an update');
+        messageId: 'c9aaeea8-4d47-4cf8-a080-250fb218468f',
+        popReceipt: 'AgAAAAMAAAAAAAAAzVPboAkg1wE=',
+        message: 'testing update: This is an update');
     print('done');
   }catch(e){
-    print('delete QM error: ${e.statusCode} ${e.message}');
+    print('delete QM error: $e');
   }
 }
 
@@ -131,7 +133,7 @@ Future<void> getQData() async {
       print('${res.key}: ${res.value}');
     }
   }catch(e){
-    print('get data error: ${e.statusCode} ${e.message}');
+    print('get data error: $e');
   }
 }
 
@@ -150,14 +152,13 @@ Future<void> getQList() async {
   }
 }
 
-
 Future<void> putMessage() async {
   var storage = AzureStorage.parse(connectionString);
   print('working on results...');
   try {
     await storage.putQMessage(qName:'ttable', message: 'testing expiration');
   }catch(e){
-    print('get data error: ${e.statusCode} ${e.message}');
+    print('get data error: $e');
   }
 }
 
@@ -166,17 +167,16 @@ Future<void> getQMessages() async {
   print('working on results...');
   try {
     List<AzureQMessage> result = await storage.getQmessages(qName: 'ttable',//Required
-      numOfmessages: 10//Optional. Number of messages to retrieve. This package returns top 20 filter results when not specified.
+        numOfmessages: 10//Optional. Number of messages to retrieve. This package returns top 20 filter results when not specified.
     );
     print('showing results');
     for (var res in result) {
       print('message ${res}');
     }
   }catch (e){
-    print('Q get messages exception ${e.toString()}');
+    print('Q get messages exception $e');
   }
 }
-
 Future<void> peekQMessages() async {
   var storage = AzureStorage.parse(connectionString);
   try {
@@ -186,7 +186,7 @@ Future<void> peekQMessages() async {
       print('message ${res.messageText}');
     }
   }catch (e){
-    print('Q peek messages exception ${e.toString()}');
+    print('Q peek messages exception $e');
   }
 }
 
@@ -197,7 +197,7 @@ Future<void> clearQMessage() async {
     await storage.clearQmessages('ttable');
     print('done');
   }catch(e){
-    print('delete QM error: ${e.statusCode} ${e.message}');
+    print('delete QM error: $e');
   }
 }
 
@@ -208,7 +208,7 @@ Future<void> deleteQMessage() async {
     await storage.delQmessages(qName: 'ttable', messageId: '27bc633b-4de0-42bf-bea6-0860bd410f4e', popReceipt: 'AgAAAAMAAAAAAAAAX3e0UwAg1wE=');
     print('done');
   }catch(e){
-    print('delete QM error: ${e.statusCode} ${e.message}');
+    print('delete QM error: $e');
   }
 }
 

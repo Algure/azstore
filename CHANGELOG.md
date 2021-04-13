@@ -13,3 +13,7 @@ Updated docs, bug fixes and backward compatibility.
 ## 0.0.4
 
 Updated docs.
+
+## 0.0.4
+
+Updated docs.
