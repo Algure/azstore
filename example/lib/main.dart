@@ -41,7 +41,6 @@ class _MyHomePageState extends State<MyHomePage> {
       color: Colors.white,
       fontSize: 14
   );
-
   String _connectionString=  'DefaultEndpointsProtocol=httxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
   String _resultText='';
   bool _progress=false;
@@ -54,6 +53,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Center(
         child: ModalProgressHUD (
+          inAsyncCall: _progress,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
@@ -117,7 +117,7 @@ class _MyHomePageState extends State<MyHomePage> {
         "Address":"Santa Clara",
         "Age":23,
         "AmountDue":200.23,
-        "CustomerCode@odata.type":"Edm.Guid",
+        "CustomerCode@odata.0type":"Edm.Guid",
         "CustomerCode":"c9da6455-213d-42c9-9a79-3e9149a57833",
         "CustomerSince@odata.type":"Edm.DateTime",
         "CustomerSince":"2008-07-10T00:00:00",
@@ -142,7 +142,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> getTableRow() async {
     try {
       var storage = AzureStorage.parse(_connectionString);
-      var myPartitionKey="fgtdssdas";
+      var myPartitionKey="fgtdss*das";
       var myRowKey='232';
       String result=await storage.getTableRow(
           tableName: 'profiles',
@@ -150,7 +150,8 @@ class _MyHomePageState extends State<MyHomePage> {
           rowKey:myRowKey,
           fields: ['Address','CustomerSince']
       );
-      print('result: $result');
+      // print('result: $result');
+      print('done');
       // showInfoDialog(context, 'Success');
     }catch(e){
       print('tables get exception: $e');

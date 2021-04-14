@@ -547,7 +547,8 @@ class AzureStorage {
     var request = http.Request('PUT', Uri.parse(path));
     _sign(request);
     var res = await request.send();
-    if (res.statusCode == 201) {
+    // print('${await res.stream.bytesToString()}');
+    if (res.statusCode >= 200 && res.statusCode<300) {
       return;
     }
     var message = await res.stream.bytesToString();
@@ -579,7 +580,7 @@ class AzureStorage {
     var request = http.Request('DELETE', Uri.parse(path));
     _sign(request);
     var res = await request.send();
-    if (res.statusCode == 204) {
+    if (res.statusCode >= 200 && res.statusCode<300) {
       return;
     }
     var message = await res.stream.bytesToString(); //DEBUG
@@ -594,7 +595,7 @@ class AzureStorage {
     _sign4Q(request);
     var res = await request.send();
     var message = await res.stream.bytesToString(); //DEBUG
-    if (res.statusCode == 200) {
+    if (res.statusCode >= 200 && res.statusCode<300) {
       List<String> tabList = _extractQList(message);
       return tabList;
     }
@@ -623,7 +624,7 @@ class AzureStorage {
   </QueueMessage> ''';
     _sign(request);
     var res = await request.send();
-    if (res.statusCode == 201 || res.statusCode == 204) {
+    if (res.statusCode >= 200 && res.statusCode<300) {
       return;
     }
     var rMessage = await res.stream.bytesToString(); //DEBUG
@@ -647,7 +648,7 @@ class AzureStorage {
     _sign(request);
     var res = await request.send();
     var message = await res.stream.bytesToString();
-    if (res.statusCode == 200) {
+    if (res.statusCode >= 200 && res.statusCode<300) {
       List<AzureQMessage> tabList = _extractQMessages(message);
       return tabList;
     }
@@ -667,7 +668,7 @@ class AzureStorage {
     _sign(request);
     var res = await request.send();
     var message = await res.stream.bytesToString(); //DEBUG
-    if (res.statusCode == 200) {
+    if (res.statusCode >= 200 && res.statusCode<300) {
       List<AzureQMessage> tabList = _extractQMessages(message);
       return tabList;
     }
@@ -691,7 +692,7 @@ class AzureStorage {
     _sign(request);
     var res = await request.send();
     var message = await res.stream.bytesToString(); //DEBUG
-    if (res.statusCode == 200 || res.statusCode == 204) {
+    if (res.statusCode >= 200 && res.statusCode<300) {
       return;
     }
     throw AzureStorageException(message, res.statusCode, res.headers);
@@ -721,7 +722,7 @@ class AzureStorage {
         </QueueMessage> ''';
     _sign(request);
     var res = await request.send();
-    if (res.statusCode == 200 || res.statusCode == 204) {
+    if (res.statusCode >= 200 && res.statusCode<300) {
       return;
     }
     message = await res.stream.bytesToString();
@@ -739,7 +740,7 @@ class AzureStorage {
     _sign(request);
     var res = await request.send();
     var message = await res.stream.bytesToString();
-    if (res.statusCode == 204) {
+    if (res.statusCode >= 200 && res.statusCode<300) {
       return;
     }
     throw AzureStorageException(message, res.statusCode, res.headers);
