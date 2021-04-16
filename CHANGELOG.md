@@ -17,3 +17,7 @@ Updated docs.
 ## 0.0.4
 
 Updated docs.
+
+## 1.0.0
+
+Null safety. More functions.

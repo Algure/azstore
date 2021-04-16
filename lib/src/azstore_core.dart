@@ -209,6 +209,33 @@ class AzureStorage {
     //print(sig);
   }
 
+  void _signNoParams(http.Request request) {
+    request.headers['x-ms-date'] = HttpDate.format(DateTime.now());
+    request.headers['x-ms-version'] = '2016-05-31';
+    var ce = request.headers['Content-Encoding'] ?? '';
+    var cl = request.headers['Content-Language'] ?? '';
+    var cz = request.contentLength == 0 ? '' : '${request.contentLength}';
+    var cm = request.headers['Content-MD5'] ?? '';
+    var ct = request.headers['Content-Type'] ?? '';
+    var dt = request.headers['Date'] ?? '';
+    var ims = request.headers['If-Modified-Since'] ?? '';
+    var imt = request.headers['If-Match'] ?? '';
+    var inm = request.headers['If-None-Match'] ?? '';
+    var ius = request.headers['If-Unmodified-Since'] ?? '';
+    var ran = request.headers['Range'] ?? '';
+    var chs = _canonicalHeaders(request.headers);
+    var crs = _canonicalResources(request.url.queryParameters);
+    var name = config[accountName];
+    var path = request.url.path;
+    var sig =
+        '${request.method}\n$ce\n$cl\n$cz\n$cm\n$ct\n$dt\n$ims\n$imt\n$inm\n$ius\n$ran\n$chs/$name$path';//$crs';
+    var mac = crypto.Hmac(crypto.sha256, accountKey);
+    var digest = base64Encode(mac.convert(utf8.encode(sig)).bytes);
+    var auth = 'SharedKey $name:$digest';
+    request.headers['Authorization'] = auth;
+    //print(sig);
+  }
+
   void _sign4Q(http.Request request) {
     request.headers['x-ms-date'] = HttpDate.format(DateTime.now());
     request.headers['x-ms-version'] = '2016-05-31';
@@ -228,6 +255,32 @@ class AzureStorage {
     var name = config[accountName];
     var sig =
         '${request.method}\n$ce\n$cl\n$cz\n$cm\n$ct\n$dt\n$ims\n$imt\n$inm\n$ius\n$ran\n$chs/$name/$crs';
+    var mac = crypto.Hmac(crypto.sha256, accountKey);
+    var digest = base64Encode(mac.convert(utf8.encode(sig)).bytes);
+    var auth = 'SharedKey $name:$digest';
+    request.headers['Authorization'] = auth;
+  }
+
+  void _sign4BlobAdmin(http.Request request, String accName) {
+    request.headers['x-ms-date'] = HttpDate.format(DateTime.now());
+    request.headers['x-ms-version'] = '2016-05-31';
+    var ce = request.headers['Content-Encoding'] ?? '';
+    var cl = request.headers['Content-Language'] ?? '';
+    var cz = request.contentLength == 0 ? '' : '${request.contentLength}';
+    var cm = request.headers['Content-MD5'] ?? '';
+    var ct = request.headers['Content-Type'] ?? '';
+    var dt = request.headers['Date'] ?? '';
+    var ims = request.headers['If-Modified-Since'] ?? '';
+    var imt = request.headers['If-Match'] ?? '';
+    var inm = request.headers['If-None-Match'] ?? '';
+    var ius = request.headers['If-Unmodified-Since'] ?? '';
+    var ran = request.headers['Range'] ?? '';
+    var chs = _canonicalHeaders(request.headers);
+    var crs = _canonicalResources(request.url.queryParameters);
+    var name = config[accountName];
+    var sig =
+        '${request.method}\n$ce\n$cl\n$cz\n$cm\n$ct\n$dt\n$ims\n$imt\n$inm\n$ius\n$ran\n$chs/$name/$accName$crs';
+    // print('${sig}');
     var mac = crypto.Hmac(crypto.sha256, accountKey);
     var digest = base64Encode(mac.convert(utf8.encode(sig)).bytes);
     var auth = 'SharedKey $name:$digest';
@@ -261,6 +314,40 @@ class AzureStorage {
     return body;
   }
 
+  //Name of container must not be empty
+  Future<void> createContainer(String name,{ int? timeout}) async {
+    assert(name.trim().isNotEmpty);
+    String path =
+        'https://${config[accountName]}.blob.core.windows.net/$name?restype=container';
+    if(timeout!=null)path+='&timeout=$timeout';
+    var request = http.Request('PUT', Uri.parse(path));
+    // request.headers['x-ms-meta-name']='StorageSample';
+    _sign4BlobAdmin(request,name);
+    var res = await request.send();
+    if (res.statusCode >= 200 && res.statusCode<300) {
+      return;
+    }
+    var message = await res.stream.bytesToString();
+    throw AzureStorageException(message, res.statusCode, res.headers);
+  }
+
+    //Name of container must not be empty
+  Future<void> deleteContainer(String name,{ int? timeout}) async {
+    assert(name.trim().isNotEmpty);
+    String path =
+        'https://${config[accountName]}.blob.core.windows.net/$name?restype=container';
+    if(timeout!=null)path+='&timeout=$timeout';
+    var request = http.Request('DELETE', Uri.parse(path));
+    // request.headers['x-ms-meta-Name']='StorageSample';
+    _sign4BlobAdmin(request,name);
+    var res = await request.send();
+    if (res.statusCode >= 200 && res.statusCode<300) {
+      return;
+    }
+    var message = await res.stream.bytesToString();
+    throw AzureStorageException(message, res.statusCode, res.headers);
+  }
+
   /// Get Blob.
   Future<http.StreamedResponse> getBlob(String path) async {
     var request = http.Request('GET', uri(path: path));
@@ -270,12 +357,13 @@ class AzureStorage {
 
   /// Put Blob.
   ///
-  /// `body` and `bodyBytes` are exclusive and mandatory.
+  /// `body` and `bodyBytes` are mutually exclusive and mandatory.
   Future<void> putBlob(String path,
       {String? body,
       Uint8List? bodyBytes,
       required String contentType,
       BlobType type = BlobType.BlockBlob}) async {
+    assert((bodyBytes==null)^( body==null));
     var request = http.Request('PUT', uri(path: path));
     request.headers['x-ms-blob-type'] =
         type.toString() == 'BlobType.AppendBlob' ? 'AppendBlob' : 'BlockBlob';
@@ -486,7 +574,7 @@ class AzureStorage {
   /// top: Optional.	Returns only the top n tables or entities from the set. The package defaults this value to 20.
   /// filter: Required. Logic for filter condition can be gotten from official documentation e.g `RowKey%20eq%"237"` or  `AmountDue%20gt%2010`.
   ///fields: Optional. Specify columns/fields to be returned. By default, all fields are returned by the package
-  Future<List<String>> filterTableRows(
+  Future<List<dynamic>> filterTableRows(
       {required String tableName,
       required String filter,
       int top = 20,
@@ -505,10 +593,10 @@ class AzureStorage {
     var res = await request.send();
     var message = await res.stream.bytesToString();
     if (res.statusCode == 200) {
-      List<String> tabList = [];
+      List<dynamic> tabList = [];
       var jsonResponse = await jsonDecode(message);
       for (var tData in jsonResponse['value']) {
-        tabList.add(tData.toString());
+        tabList.add(tData);
       }
       return tabList;
     }
@@ -641,9 +729,11 @@ class AzureStorage {
   ///
   ///numofmessages:	Optional. A nonzero integer value that specifies the number of messages to retrieve from the queue, up to a maximum of 32. If fewer are visible, the visible messages are returned. By default, this API retrieves 20 messages from the queue with this operation.
   Future<List<AzureQMessage>> getQmessages(
-      {required String qName, int numOfmessages = 20}) async {
+      {required String qName, int numOfmessages = 20, int? visibilitytimeout, int? timeout}) async {
     String path =
         'https://${config[accountName]}.queue.core.windows.net/$qName/messages?numofmessages=$numOfmessages';
+    if(visibilitytimeout!=null)path+='&visibilitytimeout=$visibilitytimeout';
+    if(timeout!=null)path+='&timeout=$timeout';
     var request = http.Request('GET', Uri.parse(path));
     _sign(request);
     var res = await request.send();
@@ -661,7 +751,7 @@ class AzureStorage {
   ///
   ///numofmessages:	Optional. A nonzero integer value that specifies the number of messages to retrieve from the queue, up to a maximum of 32. If fewer are visible, the visible messages are returned. By default, a single message is retrieved from the queue with this operation. This API also retrieves a single message with this mtod by default
   Future<List<AzureQMessage>> peekQmessages(
-      {required String qName, int numofmessages = 1}) async {
+      {required String qName, int numofmessages = 1,}) async {
     String path =
         'https://${config[accountName]}.queue.core.windows.net/$qName/messages?numofmessages=$numofmessages&peekonly=true';
     var request = http.Request('GET', Uri.parse(path));
@@ -682,7 +772,7 @@ class AzureStorage {
   /// 'messageId':	Required.  A valid messageId value returned from an earlier call to the Get Messages or Update Message operation.
   ///
   /// 'popReceipt':	Required. A valid pop receipt value returned from an earlier call to the Get Messages or Update Message operation.
-  Future<void> delQmessages(
+  Future<void> delQmessage(
       {required String qName,
       required String messageId,
       required String popReceipt}) async {
@@ -707,7 +797,7 @@ class AzureStorage {
   /// messageId	Required. Specifies the valid messageId value returned from an earlier call to the Get Messages or Update Message operation.
   ///
   ///visibilitytimeout	Required. Specifies the new visibility timeout value, in seconds, relative to server time. The new value must be larger than or equal to 0, and cannot be larger than 7 days. This API defaults this value to 0. The visibility timeout of a message cannot be set to a value later than the expiry time. A message can be updated until it has been deleted or has expired.
-  Future<void> updateQmessages(
+  Future<void> updateQmessage(
       {required String qName,
       required String messageId,
       Duration? vTimeout,

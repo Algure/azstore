@@ -174,7 +174,7 @@ class _MyHomePageState extends State<MyHomePage> {
     var storage = AzureStorage.parse(_connectionString);
     print('working on results...');
     try {
-      await storage.updateQmessages(
+      await storage.updateQmessage(
           qName: 'ttable',
           messageId: 'c9aaeea8-4d47-4cf8-a080-250fb218468f',
           popReceipt: 'AgAAAAMAAAAAAAAAzVPboAkg1wE=',
@@ -289,7 +289,7 @@ class _MyHomePageState extends State<MyHomePage> {
     var storage = AzureStorage.parse(_connectionString);
     print('working on results...');
     try {
-      await storage.delQmessages(qName: 'ttable', messageId: '27bc633b-4de0-42bf-bea6-0860bd410f4e', popReceipt: 'AgAAAAMAAAAAAAAAX3e0UwAg1wE=');
+      await storage.delQmessage(qName: 'ttable', messageId: '27bc633b-4de0-42bf-bea6-0860bd410f4e', popReceipt: 'AgAAAAMAAAAAAAAAX3e0UwAg1wE=');
       print('done');
       showInfoDialog(context, 'Success');//Optional prompt
     }catch(e){

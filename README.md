@@ -134,13 +134,13 @@ Future<void> testGetTableRow() async {
 
 Future<void> testFilterTable() async {
   var storage = AzureStorage.parse('your connection string');
-  List<String> result=await storage.filterTableRows(tableName: 'profiles',
+  List<dynamic> result=await storage.filterTableRows(tableName: 'profiles',
    filter: 'Age%20lt%2024', 
    fields: ['Age','CustomerSince'], 
    top:30 
    );
   print('\nFilter results');
-  for(String res in result){
+  for(var res in result){
     print(res);
   }
 }
@@ -265,7 +265,7 @@ Future<void> testClearQMessage() async {
 Future<void> testDeleteMessage() async {
   var storage = AzureStorage.parse('your connection string');
   try {
-    await storage.delQmessages(qName: 'ttable',
+    await storage.delQmessage(qName: 'ttable',
      messageId: '27bc633b-4de0-42bf-bea6-0860bd410f4e',
       popReceipt: 'AgAAAAMAAAAAAAAAX3e0UwAg1wE='
       );
@@ -274,8 +274,42 @@ Future<void> testDeleteMessage() async {
   }
 }
 ```
+## Azstore Functions.
 
-The package provides internal documentation and required function parameters to ease working with functions. Also refer to the [Azure official documentation](https://docs.microsoft.com/en-us/rest/api/storageservices/queue-service-rest-api) for details on queue operations and messages lifecycle.
+### Blob Functions.
+
+`createContainer`: Create new blob container.
+`deleteContainer`: Delete blob container.
+`putBlob`: Put/update blob value.
+`appendBlock`: Add block to blob.
+`deleteBlob`: Delete blob.
+
+### Table Functions.
+
+`createTable`: Create azure table.
+`deleteTable`: Delete azure table.
+`getTables`: Get tables in storage account.
+`upsertTableRow`: Update/insert new table row/node.
+`putTableRow`: Insert/replace new table row/node.
+`getTableRow`: Get table row/node values.
+`filterTableRows`: Search through rows with specified filter.
+`deleteTableRow`: Delete table node/row.
+
+### Queue Functions.
+
+`createQueue`: Create new queue.
+`getQData`: Get properties of a queue.
+`deleteQueue`: Delete queue from storage account.
+`getQList`: Get list of all queues.
+`putQMessage`: Insert message to queue.
+`getQmessages`: Get a list of queue message objects while changing visibilty.
+`peekQmessages`: Get a list of queue message objects without changing visibility.
+`delQmessage`: Delete queue message.
+`updateQmessage`: Update queue message.
+`clearQmessages`: Delete all queue messages.
+
+
+The package provides internal documentation and required function parameters to ease working with functions. Also refer to the [Azure official documentation](https://docs.microsoft.com/en-us/rest/api/storageservices/queue-service-rest-api) for details on queue operations and message lifecycle.
 
 ## Creating Azure Storage Account
 
