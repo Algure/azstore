@@ -15,10 +15,6 @@ void main()  {
     var myPartitionKey="sfsdfsrg57865746";
     var myRowKey='237';
 
-    // test('Delete tables returns void',() async {
-    //   await storage.deleteTable(testTableName);
-    // });
-    //
     test('Create table',() async {
       await storage.createTable(testTableName);
     });
@@ -183,21 +179,6 @@ void main()  {
       await storage.deleteContainer(containerName,timeout: 20);
     });
   });
-
-//  await testDeleteQ();
-//  await testQs();
-//  await createQ();
-//  await testGetQData();
-//  await putMessage();
-//  await testDeleteMessage();
-//  await testUpdateQMessage();
-//  await getQMessages();
-//  await testClearQMessage();
-//  await testPeekQMessages();
-//  await uploadTableNode();
-//   await testGetTableRow();
-//   await testDeleteTableRow();
-//   await testFilterTable();
 }
 
 
