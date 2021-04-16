@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:typed_data';
-import 'package:flutter/foundation.dart';
 import 'package:universal_io/io.dart';
 import 'package:xml/xml.dart';
 import 'package:http/http.dart' as http;
@@ -36,7 +35,7 @@ class AzureQMessage {
 
   AzureQMessage.fromXML(String xmlObj) {
     var xml = XmlDocument.parse(xmlObj);
-    if (xml == null) return;
+    // if (xml == null) return;
     messageId = xml.getElement('QueueMessage')!.getElement('MessageId') != null
         ? xml.getElement('QueueMessage')!.getElement('MessageId')!.text
         : '';
@@ -202,33 +201,6 @@ class AzureStorage {
     var path = request.url.path;
     var sig =
         '${request.method}\n$ce\n$cl\n$cz\n$cm\n$ct\n$dt\n$ims\n$imt\n$inm\n$ius\n$ran\n$chs/$name$path$crs';
-    var mac = crypto.Hmac(crypto.sha256, accountKey);
-    var digest = base64Encode(mac.convert(utf8.encode(sig)).bytes);
-    var auth = 'SharedKey $name:$digest';
-    request.headers['Authorization'] = auth;
-    //print(sig);
-  }
-
-  void _signNoParams(http.Request request) {
-    request.headers['x-ms-date'] = HttpDate.format(DateTime.now());
-    request.headers['x-ms-version'] = '2016-05-31';
-    var ce = request.headers['Content-Encoding'] ?? '';
-    var cl = request.headers['Content-Language'] ?? '';
-    var cz = request.contentLength == 0 ? '' : '${request.contentLength}';
-    var cm = request.headers['Content-MD5'] ?? '';
-    var ct = request.headers['Content-Type'] ?? '';
-    var dt = request.headers['Date'] ?? '';
-    var ims = request.headers['If-Modified-Since'] ?? '';
-    var imt = request.headers['If-Match'] ?? '';
-    var inm = request.headers['If-None-Match'] ?? '';
-    var ius = request.headers['If-Unmodified-Since'] ?? '';
-    var ran = request.headers['Range'] ?? '';
-    var chs = _canonicalHeaders(request.headers);
-    var crs = _canonicalResources(request.url.queryParameters);
-    var name = config[accountName];
-    var path = request.url.path;
-    var sig =
-        '${request.method}\n$ce\n$cl\n$cz\n$cm\n$ct\n$dt\n$ims\n$imt\n$inm\n$ius\n$ran\n$chs/$name$path';//$crs';
     var mac = crypto.Hmac(crypto.sha256, accountKey);
     var digest = base64Encode(mac.convert(utf8.encode(sig)).bytes);
     var auth = 'SharedKey $name:$digest';

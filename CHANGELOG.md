@@ -1,8 +1,8 @@
-## 0.0.1
+## 1.0.0
 
-Blob, tables and queue access
+Null safety. More functions.
 
-## 0.0.2
+## 0.0.4
 
 Updated docs.
 
@@ -10,14 +10,20 @@ Updated docs.
 
 Updated docs, bug fixes and backward compatibility.
 
+## 0.0.2
+
+Updated docs.
+
+## 0.0.1
+
+Blob, tables and queue access
+
+
+
+
+
+
 ## 0.0.4
 
 Updated docs.
 
-## 0.0.4
-
-Updated docs.
-
-## 1.0.0
-
-Null safety. More functions.

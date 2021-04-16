@@ -42,7 +42,6 @@ class _MyHomePageState extends State<MyHomePage> {
       fontSize: 14
   );
   String _connectionString=  'DefaultEndpointsProtocol=httxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
-  String _resultText='';
   bool _progress=false;
 
   @override
@@ -150,7 +149,7 @@ class _MyHomePageState extends State<MyHomePage> {
           rowKey:myRowKey,
           fields: ['Address','CustomerSince']
       );
-      // print('result: $result');
+      print('result: $result');
       print('done');
       // showInfoDialog(context, 'Success');
     }catch(e){
@@ -213,7 +212,6 @@ class _MyHomePageState extends State<MyHomePage> {
     var storage = AzureStorage.parse(_connectionString);
     await storage.deleteQueue('newer-queue');
     print('done');
-    // showInfoDialog(context, 'Success');//Optional prompt
   }
 
   Future<void> getQList() async {
@@ -352,12 +350,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 color: arr[1],
                 borderRadius: BorderRadius.circular(20)
             ),
-            child: FlatButton(onPressed: arr[2],
+            child: TextButton(onPressed: arr[2],
               child: Padding(
                 padding: EdgeInsets.all(2),
                 child: Text(arr[0], style: navTextStyle,),
-              ),
-              splashColor: Colors.white,),
+              )),
           ),
         ));
       }
@@ -413,10 +410,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
 class MyButton extends StatelessWidget {
   MyButton({this.buttonColor,   this.text, this.textColor,  this.onPressed});
-  Color buttonColor;
-  String text;
-  Function() onPressed;
-  Color textColor;
+  final Color buttonColor;
+  final String text;
+  final Function() onPressed;
+  final Color textColor;
 
   @override
   Widget build(BuildContext context) {

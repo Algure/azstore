@@ -1,12 +1,9 @@
 import 'dart:convert';
+import 'package:flutter_test/flutter_test.dart';
 
 import 'package:azstore/constants.dart';
 import 'package:azstore/src/azstore_core.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
-
 import 'package:azstore/azstore.dart';
-
 
 void main()  {
   group('Azure Tables Tests',() {
@@ -14,7 +11,6 @@ void main()  {
     String testTableName='testtable';
     var myPartitionKey="sfsdfsrg57865746";
     var myRowKey='237';
-
     test('Create table',() async {
       await storage.createTable(testTableName);
     });
@@ -58,10 +54,13 @@ void main()  {
      List<dynamic> result=await storage.filterTableRows(tableName: testTableName,
          filter: 'Age%20lt%2024', fields: ['Age','CustomerSince','PartitionKey','RowKey'], top: 10);
      print('result: ${result[0]}');
-     for(var r in result)
      expect(result[0]['PartitionKey'].toString(),myPartitionKey);
      expect(result[0]['RowKey'].toString(),myRowKey);
      expect(result[0]['Age'].toString(),'23');
+
+      result=await storage.filterTableRows(tableName: testTableName,
+         filter: 'Age%20gt%2024', fields: ['Age','CustomerSince','PartitionKey','RowKey'], top: 10);
+     expect(result.length,0);
    });
 
     test('Delete tables row. Returns void',() async {
@@ -120,9 +119,8 @@ void main()  {
       expect(result.length,5);
       expect(limitTest,false);
       expect(result[0].messageText,'testing inputs 1');
-      print('reseived message: ${result[0]}');
+      print('received message: ${result[0]}');
       await Future.delayed(const Duration(seconds: 120));
-
        result = await storage.getQmessages(qName: testQName,//Required
           numOfmessages: 3,
          visibilitytimeout: 2//Optional. Number of messages to retrieve. This package returns top 20 filter results when not specified.

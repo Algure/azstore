@@ -8,7 +8,7 @@ Access azure storage options via REST APIs.
 
 ## Getting Started
 
-This package handles all the encryption and formatting required to provide easy access to azure storage options via REST APIs in flutter project.
+This package handles all the encryption and formatting required to provide easy access to azure storage options via REST APIs in a flutter project.
 The package currently provides functions to query and upload data to Azure blobs, tables and queues.
 
 ## 🎖 Installing
@@ -29,10 +29,9 @@ import 'package:azstore/azstore.dart';
 
 ### Azure Blob Functions.
 
-#### Upload
-Upload file to blob with         `putBlob`         function.         `body`          and         `bodyBytes`         are exclusive and mandatory.
+Azure blob allows storage of unstructured data in containers.
 
-Example:
+Typical use cases are shown below.
 
 ```dart
 Future<void> testUploadImage() async {
@@ -41,7 +40,7 @@ Future<void> testUploadImage() async {
   var storage = AzureStorage.parse('your connection string');
   try {
     await storage.putBlob('/azpics/fdblack.png',
-      bodyBytes: bytes,
+      bodyBytes: bytes,//Text can be uploaded to 'blob' in which case body parameter is specified instead of 'bodyBytes'
       contentType: 'image/png',
     );
   }catch(e){
@@ -50,9 +49,6 @@ Future<void> testUploadImage() async {
 }
 ```
 
-Text can also be uploaded to blob in which case         `body`         parameter is specified instead of         `bodyBytes`         .
-
-#### Delete
 Delete blob operations can also be performed as shown.
 
 ```dart
@@ -67,7 +63,7 @@ Future<void> testDeleteBlob() async {
 }
 ```
 
-Also explore the         `appendBlock`          function.
+Also explore the         `appendBlock`, `createContainer` and `deleteContainer`  functions.
 
 ### Table Storage Functions
 
@@ -212,7 +208,7 @@ Future<void> testDeleteQ() async {
 
 ```
 
-To insert and access messages in a queue, the functions `putQMessage`, `getQmessages`,`peekQmessages`,`clearQmessages` and `delQmessages` can be used as shown below.
+To insert and access messages in a queue, the functions `putQMessage`, `getQmessages`,`peekQmessage`,`clearQmessages` and `delQmessages` can be used as shown below.
 
 ```dart
 Future<void> testPutMessage() async {
@@ -274,77 +270,40 @@ Future<void> testDeleteMessage() async {
   }
 }
 ```
+The package provides internal documentation and required function parameters to ease working with functions. Also refer to the [Azure official documentation](https://docs.microsoft.com/en-us/rest/api/storageservices/queue-service-rest-api) for details on queue operations and message lifecycle.
+
+
 ## Azstore Functions.
 
 ### Blob Functions.
 
-`createContainer`: Create new blob container.
-`deleteContainer`: Delete blob container.
-`putBlob`: Put/update blob value.
-`appendBlock`: Add block to blob.
-`deleteBlob`: Delete blob.
+- `createContainer`: Create new blob container.
+- `deleteContainer`: Delete blob container.
+- `putBlob`: Put/update blob value.
+- `appendBlock`: Add block to blob.
+- `deleteBlob`: Delete blob.
 
 ### Table Functions.
 
-`createTable`: Create azure table.
-`deleteTable`: Delete azure table.
-`getTables`: Get tables in storage account.
-`upsertTableRow`: Update/insert new table row/node.
-`putTableRow`: Insert/replace new table row/node.
-`getTableRow`: Get table row/node values.
-`filterTableRows`: Search through rows with specified filter.
-`deleteTableRow`: Delete table node/row.
+- `createTable`: Create azure table.
+- `deleteTable`: Delete azure table.
+- `getTables`: Get tables in storage account.
+- `upsertTableRow`: Update/insert new table row/node.
+- `putTableRow`: Insert/replace new table row/node.
+- `getTableRow`: Get table row/node values.
+- `filterTableRows`: Search through rows with specified filter.
+- `deleteTableRow`: Delete table node/row.
 
 ### Queue Functions.
 
-`createQueue`: Create new queue.
-`getQData`: Get properties of a queue.
-`deleteQueue`: Delete queue from storage account.
-`getQList`: Get list of all queues.
-`putQMessage`: Insert message to queue.
-`getQmessages`: Get a list of queue message objects while changing visibilty.
-`peekQmessages`: Get a list of queue message objects without changing visibility.
-`delQmessage`: Delete queue message.
-`updateQmessage`: Update queue message.
-`clearQmessages`: Delete all queue messages.
-
-
-The package provides internal documentation and required function parameters to ease working with functions. Also refer to the [Azure official documentation](https://docs.microsoft.com/en-us/rest/api/storageservices/queue-service-rest-api) for details on queue operations and message lifecycle.
-
-## Creating Azure Storage Account
-
-You would need an azure storage account to complete this walk through.
-
-### STEP 1.
-Navigate to your azure portal and create a resource by clicking the `create a resourse button` then select `storage accounts` or simply click the `storage accounts` button if it appears on your home page.
-
-
-![createRes](https://user-images.githubusercontent.com/37802577/112473274-6d9f2f80-8d6e-11eb-92e7-1025c96023d5.png)
-
-
-![selectstore](https://user-images.githubusercontent.com/37802577/112473279-6f68f300-8d6e-11eb-943d-4d8e912c75ca.png)
-
-### STEP 2.
-Enter details for your new storage account and then `Review + create` . Also feel free to explore options in the other tabs (`Networking`, `Data Protection`, `Advanced` and `Tags`) for more control over your storage account. (Review process may take a few seconds).
-
-
-![storewalkthrough](https://user-images.githubusercontent.com/37802577/112473217-5d875000-8d6e-11eb-9a1b-c21735b6e8fc.png)
-
-### STEP 3:
-Complete account creation by clicking the `Create` button after review is complete.
-
-
-![create](https://user-images.githubusercontent.com/37802577/112473256-6841e500-8d6e-11eb-8d68-4cf6bbb1842a.png)
-
-
-### STEP 4:
-Go to resource after deployment is complete.
-
-
-![deploymentcompleted](https://user-images.githubusercontent.com/37802577/112473277-6ed05c80-8d6e-11eb-83fa-a01d5908adae.png).
-
-
-### STEP 5:
-In the resource page, navigate to the `Access keys` tab and `show keys`. The `show keys` button exposes your access keys and **connection string** which is all you need to use this flutter package.
-
+- `createQueue`: Create new queue.
+- `getQData`: Get properties of a queue.
+- `deleteQueue`: Delete queue from storage account.
+- `getQList`: Get list of all queues.
+- `putQMessage`: Insert message to queue.
+- `getQmessages`: Get a list of queue message objects while changing visibilty.
+- `peekQmessages`: Get a list of queue message objects without changing visibility.
+- `delQmessage`: Delete queue message.
+- `updateQmessage`: Update queue message.
+- `clearQmessages`: Delete all queue messages.
 
