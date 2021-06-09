@@ -128,12 +128,18 @@ class AzureStorage {
     var suffix = config[endpointSuffix] ?? 'core.windows.net';
     var name = config[accountName];
 
+    var qp = <String, String>{
+      if (queryParameters != null) ...queryParameters,
+      if (config[sharedAccessSignature] != null)
+        ...Uri(host: 'ignored', query: config[sharedAccessSignature]!)
+            .queryParameters
+    };
+
     return Uri(
       scheme: scheme,
       host: '$name.blob.$suffix',
       path: path,
-      queryParameters: queryParameters,
-      query: config[sharedAccessSignature],
+      queryParameters: qp,
     );
   }
 
