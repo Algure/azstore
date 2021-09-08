@@ -13,7 +13,7 @@ dependencies:
     sdk: flutter
 
   azstore:
-    path: C:/FlutterProjects/azstore
+    path: ../../
   cupertino_icons: ^1.0.2
   modal_progress_hud: ^0.1.3
   path_provider: ^1.6.24
