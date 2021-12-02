@@ -1,9 +1,13 @@
 import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:azstore/constants.dart';
 import 'package:azstore/src/azstore_core.dart';
 import 'package:azstore/azstore.dart';
+import 'package:http_parser/http_parser.dart' show MediaType;
+
 
 void main()  {
   group('Azure Tables Tests',() {
@@ -157,8 +161,23 @@ void main()  {
       await storage.createContainer(containerName, timeout: 10);
     });
 
-    test('Put blob test',() async {
-      await storage.putBlob(blobpath, contentType: 'application/json', body: blobInput);
+    test('Put blob with listener test',() async {
+      // await storage.putBlob(blobpath, contentType: 'application/json', body: blobInput);
+      Uint8List bytes = await File('/Users/mac/Downloads/Untitled design.mp4').readAsBytes();
+      String picName =
+          DateTime.now().toString().replaceAll(' ', '');
+      await storage.putBlobListen(
+        '/media/$picName.mp4',
+        //Text can be uploaded to 'blob' in which case body parameter is specified instead of 'bodyBytes'
+        contentType: 'video',
+        listener: (received, total){
+          print('received $received');
+          print('total $total');
+          final progress = (received / total).toStringAsFixed(2);
+          print('progress: $progress');
+        }, fileName: '$picName.mp4', filePath: '/Users/mac/Downloads/Untitled design.mp4', subType: 'mp4'
+      );
+
     });
 
     test('Get blob test',() async {

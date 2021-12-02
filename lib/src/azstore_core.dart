@@ -1,9 +1,13 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:azstore/src/custom_multipart_request.dart';
+import 'package:http/http.dart';
 import 'package:universal_io/io.dart';
 import 'package:xml/xml.dart';
 import 'package:http/http.dart' as http;
 import 'package:crypto/crypto.dart' as crypto;
+import 'package:http_parser/http_parser.dart' show MediaType;
+
 
 /// Blob type
 enum BlobType {
@@ -232,6 +236,39 @@ class AzureStorage {
     //print(sig);
   }
 
+  void _signMultipart(http.MultipartRequest request) {
+    request.headers['x-ms-date'] = HttpDate.format(DateTime.now());
+    request.headers['x-ms-version'] = '2016-05-31';
+
+    if (accountKey == null) {
+      return;
+    }
+
+    var ce = request.headers['Content-Encoding'] ?? '';
+    var cl = request.headers['Content-Language'] ?? '';
+    var cz = request.contentLength == 0 ? '' : '${request.contentLength}';
+    var cm = request.headers['Content-MD5'] ?? '';
+    var ct = request.headers['Content-Type'] ?? '';
+    var dt = request.headers['Date'] ?? '';
+    var ims = request.headers['If-Modified-Since'] ?? '';
+    var imt = request.headers['If-Match'] ?? '';
+    var inm = request.headers['If-None-Match'] ?? '';
+    var ius = request.headers['If-Unmodified-Since'] ?? '';
+    var ran = request.headers['Range'] ?? '';
+    var chs = _canonicalHeaders(request.headers);
+    var crs = _canonicalResources(request.url.queryParameters);
+    var name = config[accountName];
+    var path = request.url.path;
+    var sig =
+        '${request.method}\n$ce\n$cl\n$cz\n$cm\n$ct\n$dt\n$ims\n$imt\n$inm\n$ius\n$ran\n$chs/$name$path$crs';
+
+    var mac = crypto.Hmac(crypto.sha256, accountKey!);
+    var digest = base64Encode(mac.convert(utf8.encode(sig)).bytes);
+    var auth = 'SharedKey $name:$digest';
+    request.headers['Authorization'] = auth;
+    //print(sig);
+  }
+
   void _sign4Q(http.Request request) {
     request.headers['x-ms-date'] = HttpDate.format(DateTime.now());
     request.headers['x-ms-version'] = '2016-05-31';
@@ -373,7 +410,7 @@ class AzureStorage {
       {String? body,
       Uint8List? bodyBytes,
       required String contentType,
-      BlobType type = BlobType.BlockBlob}) async {
+      BlobType type = BlobType.BlockBlob, Function (int, int)? listener}) async {
     assert((bodyBytes == null) ^ (body == null));
     var request = http.Request('PUT', uri(path: path));
     request.headers['x-ms-blob-type'] =
@@ -389,12 +426,60 @@ class AzureStorage {
       request.body = '';
     }
     _sign(request);
-    var res = await request.send();
+    final StreamedResponse res = await request.send();
+    final _total = res.contentLength ?? 0;
+    var _received = 0;
+    print('received $_received');
+    print('total $_total');
+
+    final List<int> _bytes = [];
+    res.stream.listen((value) {
+      _bytes.addAll(value);
+      _received += value.length;
+
+      double progVal = (_received / _total).toDouble();
+      print('progVal $progVal');
+      if(listener != null){
+        listener!(_received, _total);
+      }
+    });
+
     if (res.statusCode == 201) {
-      await res.stream.drain();
+      // await res.stream.drain();
       if (type == BlobType.AppendBlob && (body != null || bodyBytes != null)) {
         await appendBlock(path, body: body, bodyBytes: bodyBytes);
       }
+      return;
+    }
+    var message = await res.stream.bytesToString();
+    throw AzureStorageException(message, res.statusCode, res.headers);
+  }
+
+  Future<void> putBlobListen(String path,
+      {required String filePath, required String fileName,
+      required String contentType,
+      required String subType,
+      BlobType type = BlobType.BlockBlob, Function (int, int)? listener}) async {
+    var request = CustomMultipartRequest('PUT', uri(path: path), onProgress: listener);
+    request.headers['x-ms-blob-type'] =
+        type.toString() == 'BlobType.AppendBlob' ? 'AppendBlob' : 'BlockBlob';
+    request.headers['content-type'] = contentType;
+    request.files.add(
+      await http.MultipartFile.fromPath(
+        fileName,
+        filePath,
+        contentType: MediaType(contentType, subType),
+      ),
+    );
+
+    _signMultipart(request);
+    final StreamedResponse res = await request.send();
+    final _total = res.contentLength ?? 0;
+    var _received = 0;
+    print('received $_received');
+    print('total $_total');
+
+    if (res.statusCode == 201) {
       return;
     }
     var message = await res.stream.bytesToString();
