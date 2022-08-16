@@ -7,8 +7,8 @@ import 'package:crypto/crypto.dart' as crypto;
 
 /// Blob type
 enum BlobType {
-  BlockBlob,
-  AppendBlob,
+  blockBlob,
+  appendBlob,
 }
 
 /// Azure Storage Exception
@@ -184,7 +184,7 @@ class AzureStorage {
 
   String _resolveNodeParams(List<String>? fields) {
     String selectParams = '';
-    if (fields != null && fields.length > 0) {
+    if (fields != null && fields.isNotEmpty) {
       for (String s in fields) {
         selectParams += ',$s';
       }
@@ -193,7 +193,7 @@ class AzureStorage {
   }
 
   String? _resolveNodeBody(String? body, Map<String, dynamic>? bodyMap) {
-    if (bodyMap != null && bodyMap.length > 0) {
+    if (bodyMap != null && bodyMap.isNotEmpty) {
       body = _getJsonFromMap(bodyMap);
     }
     return body;
@@ -321,7 +321,7 @@ class AzureStorage {
           : '${bodyMap[key]}';
       body += '"$key":$mainVal,';
     }
-    body = body.substring(0, body.length - 1) + '}';
+    body = '${body.substring(0, body.length - 1)}}';
     return body;
   }
 
@@ -369,17 +369,19 @@ class AzureStorage {
   /// Put Blob.
   ///
   /// `body` and `bodyBytes` are mutually exclusive and mandatory.
-  Future<void> putBlob(String path,
-      {String? body,
-      Uint8List? bodyBytes,
-      required String contentType,
-      BlobType type = BlobType.BlockBlob}) async {
+  Future<void> putBlob(
+    String path, {
+    String? body,
+    Uint8List? bodyBytes,
+    required String contentType,
+    BlobType type = BlobType.blockBlob,
+  }) async {
     assert((bodyBytes == null) ^ (body == null));
     var request = http.Request('PUT', uri(path: path));
     request.headers['x-ms-blob-type'] =
         type.toString() == 'BlobType.AppendBlob' ? 'AppendBlob' : 'BlockBlob';
     request.headers['content-type'] = contentType;
-    if (type == BlobType.BlockBlob) {
+    if (type == BlobType.blockBlob) {
       if (bodyBytes != null) {
         request.bodyBytes = bodyBytes;
       } else if (body != null) {
@@ -392,7 +394,7 @@ class AzureStorage {
     var res = await request.send();
     if (res.statusCode == 201) {
       await res.stream.drain();
-      if (type == BlobType.AppendBlob && (body != null || bodyBytes != null)) {
+      if (type == BlobType.appendBlob && (body != null || bodyBytes != null)) {
         await appendBlock(path, body: body, bodyBytes: bodyBytes);
       }
       return;
@@ -401,8 +403,10 @@ class AzureStorage {
     throw AzureStorageException(message, res.statusCode, res.headers);
   }
 
-  Future<void> deleteBlob(String path,
-      {BlobType type = BlobType.BlockBlob}) async {
+  Future<void> deleteBlob(
+    String path, {
+    BlobType type = BlobType.blockBlob,
+  }) async {
     var request = http.Request('DELETE', uri(path: path));
     request.headers['x-ms-blob-type'] =
         type.toString() == 'BlobType.AppendBlob' ? 'AppendBlob' : 'BlockBlob';
@@ -417,8 +421,11 @@ class AzureStorage {
   }
 
   /// Append block to blob.
-  Future<void> appendBlock(String path,
-      {String? body, Uint8List? bodyBytes}) async {
+  Future<void> appendBlock(
+    String path, {
+    String? body,
+    Uint8List? bodyBytes,
+  }) async {
     var request = http.Request(
         'PUT', uri(path: path, queryParameters: {'comp': 'appendblock'}));
     if (bodyBytes != null) {
@@ -504,12 +511,13 @@ class AzureStorage {
   /// Update table entity/entry.
   ///
   /// 'tableName', `partitionKey` and `rowKey` are all mandatory. `body` and `bodyMap` are exclusive and mandatory.
-  Future<void> upsertTableRow(
-      {required String tableName,
-      required String partitionKey,
-      required String rowKey,
-      String? body,
-      Map<String, dynamic>? bodyMap}) async {
+  Future<void> upsertTableRow({
+    required String tableName,
+    required String partitionKey,
+    required String rowKey,
+    String? body,
+    Map<String, dynamic>? bodyMap,
+  }) async {
     body = _resolveNodeBody(body, bodyMap);
     String path =
         'https://${config[accountName]}.table.core.windows.net/$tableName(PartitionKey=\'$partitionKey\', RowKey=\'$rowKey\')';
@@ -530,12 +538,13 @@ class AzureStorage {
   /// Upload or replace table entity/entry.
   ///
   /// 'tableName',`partitionKey` and `rowKey` are all mandatory. `body` and `bodyMap` are exclusive and mandatory.
-  Future<void> putTableRow(
-      {String? tableName,
-      String? partitionKey,
-      String? rowKey,
-      String? body,
-      Map<String, dynamic>? bodyMap}) async {
+  Future<void> putTableRow({
+    String? tableName,
+    String? partitionKey,
+    String? rowKey,
+    String? body,
+    Map<String, dynamic>? bodyMap,
+  }) async {
     body = _resolveNodeBody(body, bodyMap);
     String path =
         'https://${config[accountName]}.table.core.windows.net/$tableName(PartitionKey=\'$partitionKey\', RowKey=\'$rowKey\')';
@@ -556,11 +565,12 @@ class AzureStorage {
   /// get data from azure tables
   ///
   /// 'tableName','partitionKey' and 'rowKey' are all mandatory. If no fields are specified, all fields attached to the entry are returned
-  Future<String> getTableRow(
-      {String? tableName,
-      String? partitionKey,
-      String? rowKey,
-      List<String>? fields}) async {
+  Future<String> getTableRow({
+    String? tableName,
+    String? partitionKey,
+    String? rowKey,
+    List<String>? fields,
+  }) async {
     String selectParams = _resolveNodeParams(fields);
     String path =
         'https://${config[accountName]}.table.core.windows.net/$tableName(PartitionKey=\'$partitionKey\',RowKey=\'$rowKey\')?\$select=$selectParams';
@@ -585,11 +595,12 @@ class AzureStorage {
   /// top: Optional.	Returns only the top n tables or entities from the set. The package defaults this value to 20.
   /// filter: Required. Logic for filter condition can be gotten from official documentation e.g `RowKey%20eq%"237"` or  `AmountDue%20gt%2010`.
   ///fields: Optional. Specify columns/fields to be returned. By default, all fields are returned by the package
-  Future<List<dynamic>> filterTableRows(
-      {required String tableName,
-      required String filter,
-      int top = 20,
-      List<String>? fields}) async {
+  Future<List<dynamic>> filterTableRows({
+    required String tableName,
+    required String filter,
+    int top = 20,
+    List<String>? fields,
+  }) async {
     String selectParams = _resolveNodeParams(fields);
     String path =
         'https://${config[accountName]}.table.core.windows.net/$tableName()?\$filter=$filter&\$select=$selectParams&\$top=$top';
@@ -617,10 +628,11 @@ class AzureStorage {
   /// Delete table entity.
   ///
   ///  'tableName', `partitionKey` and `rowKey` are all mandatory.
-  Future<void> deleteTableRow(
-      {required String tableName,
-      required String partitionKey,
-      required String rowKey}) async {
+  Future<void> deleteTableRow({
+    required String tableName,
+    required String partitionKey,
+    required String rowKey,
+  }) async {
     String path =
         'https://${config[accountName]}.table.core.windows.net/$tableName(PartitionKey=\'$partitionKey\', RowKey=\'$rowKey\')';
 //    print('delete path: $path');
@@ -710,11 +722,12 @@ class AzureStorage {
   /// 'vtimeout': Optional. If specified, the request must be made using an x-ms-version of 2011-08-18 or later. If not specified, the default value is 0. Specifies the new visibility timeout value, in seconds, relative to server time. The new value must be larger than or equal to 0, and cannot be larger than 7 days. The visibility timeout of a message cannot be set to a value later than the expiry time. visibilitytimeout should be set to a value smaller than the time-to-live value.
   ///
   /// 'messagettl': Optional. Specifies the time-to-live interval for the message, in seconds. Prior to version 2017-07-29, the maximum time-to-live allowed is 7 days. For version 2017-07-29 or later, the maximum time-to-live can be any positive number, as well as -1 indicating that the message does not expire. If this parameter is omitted, the default time-to-live is 7 days.
-  Future<void> putQMessage(
-      {required String qName,
-      int messagettl = 604800,
-      int vtimeout = 0,
-      required String message}) async {
+  Future<void> putQMessage({
+    required String qName,
+    int messagettl = 604800,
+    int vtimeout = 0,
+    required String message,
+  }) async {
     String path =
         'https://${config[accountName]}.queue.core.windows.net/$qName/messages?visibilitytimeout=$vtimeout&messagettl=$messagettl';
     var request = http.Request('POST', Uri.parse(path));
@@ -747,8 +760,9 @@ class AzureStorage {
   }) async {
     String path =
         'https://${config[accountName]}.queue.core.windows.net/$qName/messages?numofmessages=$numOfmessages';
-    if (visibilitytimeout != null)
+    if (visibilitytimeout != null) {
       path += '&visibilitytimeout=$visibilitytimeout';
+    }
     if (timeout != null) path += '&timeout=$timeout';
     var request = http.Request('GET', Uri.parse(path));
     _sign(request);
