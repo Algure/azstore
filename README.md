@@ -63,17 +63,16 @@ Future<void> testDeleteBlob() async {
 }
 ```
 
-Also explore the         `appendBlock`, `createContainer` and `deleteContainer`  functions.
+Also explore the `appendBlock`, `createContainer` and `deleteContainer` functions.
 
 ### Table Storage Functions
 
 The Azure Table service offers structured NoSQL storage in the form of tables.
-Tables can be managed using the         `createTable`,`deleteTable`         and         `getTables`          functions.
-Table nodes/rows can be controlled using other functions  such as         `upsertTableRow`,`putTableRow`,`getTableRow` and `deleteTableRow`.
+Tables can be managed using the `createTable`, `deleteTable` and `getTables` functions.
+Table nodes/rows can be controlled using other functions such as `upsertTableRow`, `putTableRow`, `getTableRow` and `deleteTableRow`.
 
 The following snippets show the use of some table access functions. Also refer to the [Azure Tables docs](https://docs.microsoft.com/en-us/rest/api/storageservices/payload-format-for-table-service-operations/) for allowed data types to insert in a table row.
 The code documentation provides further help.
-
 
 Use `upsertTableRow` when updating or adding new table row and `putTableRow` to replace or add a new row.
 
@@ -105,7 +104,6 @@ Future<void> testUpload2Table() async {
     print('tables upsert exception: $e');
   }
 }
-
 ```
 
 Specific Table rows can be retrieved using `getTableRow` function as shown below. Filters can also be used to retrieve a list of table rows by using the `filterTableRows` function specifying the [filter logic](https://docs.microsoft.com/en-us/rest/api/storageservices/querying-tables-and-entities) in the `filter` parameter.
@@ -205,10 +203,9 @@ Future<void> testDeleteQ() async {
     print('delete queue error: $e');
   }
 }
-
 ```
 
-To insert and access messages in a queue, the functions `putQMessage`, `getQmessages`,`peekQmessage`,`clearQmessages` and `delQmessages` can be used as shown below.
+To insert and access messages in a queue, the functions `putQMessage`, `getQmessages`, `peekQmessage`, `clearQmessages` and `delQmessages` can be used as shown below.
 
 ```dart
 Future<void> testPutMessage() async {
@@ -272,7 +269,6 @@ Future<void> testDeleteMessage() async {
 ```
 The package provides internal documentation and required function parameters to ease working with functions. Also refer to the [Azure official documentation](https://docs.microsoft.com/en-us/rest/api/storageservices/queue-service-rest-api) for details on queue operations and message lifecycle.
 
-
 ## Azstore Functions.
 
 ### Blob Functions.
@@ -307,14 +303,12 @@ The package provides internal documentation and required function parameters to 
 - `updateQmessage`: Update queue message.
 - `clearQmessages`: Delete all queue messages.
 
-
 ## Creating Azure Storage Account
 
 You would need an azure storage account to complete this walk through.
 
 ### STEP 1.
 Navigate to your azure portal and create a resource by clicking the `create a resourse button` then select `storage accounts` or simply click the `storage accounts` button if it appears on your home page.
-
 
 ![createRes](https://user-images.githubusercontent.com/37802577/112473274-6d9f2f80-8d6e-11eb-92e7-1025c96023d5.png)
 
@@ -324,12 +318,10 @@ Navigate to your azure portal and create a resource by clicking the `create a re
 ### STEP 2.
 Enter details for your new storage account and then `Review + create` . Also feel free to explore options in the other tabs (`Networking`, `Data Protection`, `Advanced` and `Tags`) for more control over your storage account. (Review process may take a few seconds).
 
-
 ![storewalkthrough](https://user-images.githubusercontent.com/37802577/112473217-5d875000-8d6e-11eb-9a1b-c21735b6e8fc.png)
 
 ### STEP 3:
 Complete account creation by clicking the `Create` button after review is complete.
-
 
 ![create](https://user-images.githubusercontent.com/37802577/112473256-6841e500-8d6e-11eb-8d68-4cf6bbb1842a.png)
 
@@ -337,9 +329,7 @@ Complete account creation by clicking the `Create` button after review is comple
 ### STEP 4:
 Go to resource after deployment is complete.
 
-
 ![deploymentcompleted](https://user-images.githubusercontent.com/37802577/112473277-6ed05c80-8d6e-11eb-83fa-a01d5908adae.png).
-
 
 ### STEP 5:
 In the resource page, navigate to the `Access keys` tab and `show keys`. The `show keys` button exposes your access keys and **connection string** which is all you need to use this flutter package.
