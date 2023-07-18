@@ -1,9 +1,10 @@
 import 'dart:convert';
 
-import 'package:azstore/constants.dart';
 import 'package:azstore/src/azstore_core.dart';
 import 'package:azstore/azstore.dart';
 import 'package:test/test.dart';
+
+const connectionString = '<placeholder>';
 
 void main() {
   group('Azure Tables Tests', () {

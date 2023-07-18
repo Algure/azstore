@@ -5,7 +5,6 @@ import 'package:azstore/azstore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:path_provider/path_provider.dart';
 
 void main() {
@@ -13,7 +12,7 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +27,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key key, this.title}) : super(key: key);
+  const MyHomePage({required this.title, super.key});
 
   final String title;
 
@@ -50,78 +49,77 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-        child: ModalProgressHUD(
-          inAsyncCall: _progress,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              const Text('Push button to test function:'),
-              ListView(
-                shrinkWrap: true,
-                children: [
-                  MyButton(
-                    text: 'Upload table node',
-                    buttonColor: Colors.blue,
-                    onPressed: uploadTableNode,
-                  ),
-                  MyButton(
-                    text: 'Delete table row',
-                    buttonColor: Colors.red,
-                    onPressed: deleteTableRow,
-                  ),
-                  MyButton(
-                    text: 'Filter tables',
-                    buttonColor: Colors.green,
-                    onPressed: filterTable,
-                  ),
-                  MyButton(
-                    text: 'Get table row',
-                    onPressed: getTableRow,
-                  ),
-                  MyButton(
-                    text: 'Put blob image',
-                    buttonColor: Colors.blue,
-                    onPressed: uploadBlobImage,
-                  ),
-                  MyButton(
-                    text: 'Delete blob',
-                    buttonColor: Colors.red,
-                    onPressed: deleteBlob,
-                  ),
-                  MyButton(
-                    text: 'Create Queue',
-                    buttonColor: Colors.blue,
-                    onPressed: createQ,
-                  ),
-                  MyButton(
-                    text: 'Get Queue Data',
-                    buttonColor: Colors.green,
-                    onPressed: getQData,
-                  ),
-                  MyButton(
-                    text: 'Insert queue message',
-                    buttonColor: Colors.blue,
-                    onPressed: putQMessage,
-                  ),
-                  MyButton(
-                    text: 'Delete Queue',
-                    buttonColor: Colors.red,
-                    onPressed: deleteQ,
-                  ),
-                  MyButton(
-                    text: 'Get Queue list',
-                    buttonColor: Colors.green,
-                    onPressed: getQList,
-                  ),
-                  MyButton(
-                    text: 'Get all queue messages',
-                    buttonColor: Colors.green,
-                    onPressed: clearQMessage,
-                  ),
-                ],
-              )
-            ],
-          ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            if (_progress)
+              const CircularProgressIndicator(),
+            const Text('Push button to test function:'),
+            ListView(
+              shrinkWrap: true,
+              children: <MyButton>[
+                MyButton(
+                  text: 'Upload table node',
+                  buttonColor: Colors.blue,
+                  onPressed: uploadTableNode,
+                ),
+                MyButton(
+                  text: 'Delete table row',
+                  buttonColor: Colors.red,
+                  onPressed: deleteTableRow,
+                ),
+                MyButton(
+                  text: 'Filter tables',
+                  buttonColor: Colors.green,
+                  onPressed: filterTable,
+                ),
+                MyButton(
+                  text: 'Get table row',
+                  onPressed: getTableRow,
+                ),
+                MyButton(
+                  text: 'Put blob image',
+                  buttonColor: Colors.blue,
+                  onPressed: uploadBlobImage,
+                ),
+                MyButton(
+                  text: 'Delete blob',
+                  buttonColor: Colors.red,
+                  onPressed: deleteBlob,
+                ),
+                MyButton(
+                  text: 'Create Queue',
+                  buttonColor: Colors.blue,
+                  onPressed: createQ,
+                ),
+                MyButton(
+                  text: 'Get Queue Data',
+                  buttonColor: Colors.green,
+                  onPressed: getQData,
+                ),
+                MyButton(
+                  text: 'Insert queue message',
+                  buttonColor: Colors.blue,
+                  onPressed: putQMessage,
+                ),
+                MyButton(
+                  text: 'Delete Queue',
+                  buttonColor: Colors.red,
+                  onPressed: deleteQ,
+                ),
+                MyButton(
+                  text: 'Get Queue list',
+                  buttonColor: Colors.green,
+                  onPressed: getQList,
+                ),
+                MyButton(
+                  text: 'Get all queue messages',
+                  buttonColor: Colors.green,
+                  onPressed: clearQMessage,
+                ),
+              ],
+            )
+          ],
         ),
       ),
     );
@@ -142,11 +140,12 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> filterTable() async {
     var storage = AzureStorage.parse(_connectionString);
     debugPrint('working on results...');
-    List<String> result = await storage.filterTableRows(
-        tableName: 'profiles',
-        filter: 'Age%20lt%2024',
-        fields: ['Age', 'CustomerSince', 'PartitionKey', 'RowKey'],
-        top: 10);
+    final result = await storage.filterTableRows(
+      tableName: 'profiles',
+      filter: 'Age%20lt%2024',
+      fields: ['Age', 'CustomerSince', 'PartitionKey', 'RowKey'],
+      top: 10,
+    );
     debugPrint('showing filter results');
     for (String res in result) {
       debugPrint(res);
@@ -210,7 +209,6 @@ class _MyHomePageState extends State<MyHomePage> {
     } catch (e) {
       debugPrint('exception: $e');
       // showErrorDialog(context, '$e');//Optional prompt
-
     }
   }
 
@@ -274,7 +272,7 @@ class _MyHomePageState extends State<MyHomePage> {
     debugPrint('working on results...');
     try {
       await storage.putQMessage(qName: 'ttable', message: 'testing expiration');
-      showInfoDialog(context, 'Success'); //Optional prompt
+      if (mounted) showInfoDialog(context, 'Success'); //Optional prompt
     } catch (e) {
       debugPrint('get data error: $e');
       showErrorDialog(context, e.toString()); //Optional prompt
@@ -294,8 +292,7 @@ class _MyHomePageState extends State<MyHomePage> {
       for (var res in result) {
         debugPrint('message $res');
       }
-      showInfoDialog(context, 'Success'); //Optional prompt
-
+      if (mounted) showInfoDialog(context, 'Success'); //Optional prompt
     } catch (e) {
       debugPrint('Q get messages exception $e');
       showErrorDialog(context, e.toString()); //Optional prompt
@@ -310,7 +307,7 @@ class _MyHomePageState extends State<MyHomePage> {
       for (var res in result) {
         debugPrint('message ${res.messageText}');
       }
-      showInfoDialog(context, 'Success'); //Optional prompt
+      if (mounted) showInfoDialog(context, 'Success'); //Optional prompt
     } catch (e) {
       debugPrint('Q peek messages exception $e');
       showErrorDialog(context, e.toString()); //Optional prompt
@@ -323,7 +320,7 @@ class _MyHomePageState extends State<MyHomePage> {
     try {
       await storage.clearQmessages('ttable');
       debugPrint('done');
-      showInfoDialog(context, 'Success'); //Optional prompt
+      if (mounted) showInfoDialog(context, 'Success'); //Optional prompt
     } catch (e) {
       debugPrint('delete QM error: $e');
       showErrorDialog(context, e.toString()); //Optional prompt
@@ -339,7 +336,7 @@ class _MyHomePageState extends State<MyHomePage> {
           messageId: '27bc633b-4de0-42bf-bea6-0860bd410f4e',
           popReceipt: 'AgAAAAMAAAAAAAAAX3e0UwAg1wE=');
       debugPrint('done');
-      showInfoDialog(context, 'Success'); //Optional prompt
+      if (mounted) showInfoDialog(context, 'Success'); //Optional prompt
     } catch (e) {
       debugPrint('delete QM error: $e');
       showErrorDialog(context, e.toString()); //Optional prompt
@@ -349,10 +346,12 @@ class _MyHomePageState extends State<MyHomePage> {
   uploadBlobImage() async {
     try {
       showProgress(true);
-      PickedFile tempFile = await _picker.getImage(source: ImageSource.gallery);
+      final tempFile = await _picker.pickImage(source: ImageSource.gallery);
       assert(tempFile != null);
-      String compressedPath = await compressImage(
-          File(tempFile != null ? tempFile.path : '').absolute.path);
+      final compressedPath = await compressImage(
+        File(tempFile != null ? tempFile.path : '').absolute.path,
+      );
+      if (compressedPath == null) return;
       Uint8List bytes = File(compressedPath).readAsBytesSync();
       var storage = AzureStorage.parse(_connectionString);
       var picId = getUniqueIdWPath(compressedPath);
@@ -361,7 +360,7 @@ class _MyHomePageState extends State<MyHomePage> {
         bodyBytes: bytes,
         contentType: 'image/png',
       );
-      showInfoDialog(context, 'Success'); //Optional prompt
+      if (mounted) showInfoDialog(context, 'Success'); //Optional prompt
       showProgress(false);
     } catch (e) {
       showProgress(false);
@@ -370,7 +369,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  Future<String> compressImage(String imagePath) async {
+  Future<String?> compressImage(String imagePath) async {
     final directory = await getApplicationDocumentsDirectory();
     String path = '${directory.path}/my_app_pics';
     if (!Directory(path).existsSync()) await Directory(path).create();
@@ -378,10 +377,13 @@ class _MyHomePageState extends State<MyHomePage> {
     path += '/$fileId.jpg';
     File newFile = File(path);
     await newFile.create();
-    File compressionFile = await FlutterImageCompress.compressAndGetFile(
-        imagePath, path,
-        quality: 25, rotate: 0);
-    return compressionFile.path;
+    final compressionFile = await FlutterImageCompress.compressAndGetFile(
+      imagePath,
+      path,
+      quality: 25,
+      rotate: 0,
+    );
+    return compressionFile?.path;
   }
 
   void showInfoDialog(BuildContext context, String text) {
@@ -391,18 +393,20 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void showErrorDialog(BuildContext context, String errorText) {
     showCustomDialog(
-        context: context,
-        icon: Icons.warning,
-        iconColor: Colors.red,
-        text: errorText);
+      context: context,
+      icon: Icons.warning,
+      iconColor: Colors.red,
+      text: errorText,
+    );
   }
 
-  void showCustomDialog(
-      {BuildContext context,
-      IconData icon,
-      Color iconColor,
-      String text,
-      List buttonList}) {
+  void showCustomDialog({
+    required BuildContext context,
+    required IconData icon,
+    required String text,
+    Color? iconColor,
+    List? buttonList,
+  }) {
     List<Widget> butList = [];
     if (buttonList != null && buttonList.isNotEmpty) {
       for (var arr in buttonList) {
@@ -410,7 +414,9 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Container(
             margin: const EdgeInsets.all(4.0),
             decoration: BoxDecoration(
-                color: arr[1], borderRadius: BorderRadius.circular(20)),
+              color: arr[1],
+              borderRadius: BorderRadius.circular(20),
+            ),
             child: TextButton(
                 onPressed: arr[2],
                 child: Padding(
@@ -430,13 +436,14 @@ class _MyHomePageState extends State<MyHomePage> {
       child: SizedBox(
         height: 350,
         child: Column(
-          children: [
+          children: <Widget>[
             Expanded(
-                child: Icon(
-              icon,
-              color: iconColor,
-              size: 200,
-            )),
+              child: Icon(
+                icon,
+                color: iconColor,
+                size: 200,
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
@@ -448,7 +455,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             const SizedBox(height: 20),
             Container(
-              height: butList != null ? 50 : 2,
+              height: butList.isNotEmpty ? 50 : 2,
               padding: const EdgeInsets.all(8.0),
               child: Row(
                 children: buttonList != null ? butList : [],
@@ -479,21 +486,26 @@ class _MyHomePageState extends State<MyHomePage> {
     return unis[unis.length - 1].split('.')[0];
   }
 
-  void showProgress(bool bool) {
+  void showProgress(bool progress) {
     setState(() {
-      _progress = true;
+      _progress = progress;
     });
   }
 }
 
 class MyButton extends StatelessWidget {
-  const MyButton(
-      {Key key, this.buttonColor, this.text, this.textColor, this.onPressed})
-      : super(key: key);
-  final Color buttonColor;
+  const MyButton({
+    required this.text,
+    this.buttonColor,
+    this.textColor,
+    this.onPressed,
+    super.key,
+  });
+
+  final Color? buttonColor;
   final String text;
-  final Function() onPressed;
-  final Color textColor;
+  final Function()? onPressed;
+  final Color? textColor;
 
   @override
   Widget build(BuildContext context) {
