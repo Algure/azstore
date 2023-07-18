@@ -1,3 +1,7 @@
+## 1.1.0
+
+Update dependencies to latest version.
+
 ## 1.0.0
 
 Null safety. More functions.
